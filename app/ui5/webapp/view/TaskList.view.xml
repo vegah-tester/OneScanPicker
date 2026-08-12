@@ -1,0 +1,66 @@
+<mvc:View
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  controllerName="onescanpicker.ui5.controller.TaskList">
+  <Page title="Warehouse Tasks" class="sapUiResponsivePadding--content">
+    <headerContent>
+      <Button icon="sap-icon://refresh" text="Refresh" press=".onRefresh" />
+    </headerContent>
+    <subHeader>
+      <OverflowToolbar>
+        <SearchField width="40%" placeholder="Search task, material, bin..." search=".onSearch" id="taskSearchField" />
+        <ToolbarSpacer />
+        <Select id="statusFilterSelect" change=".onFilterChange" selectedKey="ALL">
+          <items>
+            <core:Item xmlns:core="sap.ui.core" key="ALL" text="All Statuses" />
+            <core:Item xmlns:core="sap.ui.core" key="Open" text="Open" />
+            <core:Item xmlns:core="sap.ui.core" key="Confirmed" text="Confirmed" />
+            <core:Item xmlns:core="sap.ui.core" key="Failed" text="Failed" />
+          </items>
+        </Select>
+      </OverflowToolbar>
+    </subHeader>
+    <content>
+      <Table
+        id="tasksTable"
+        items="{/Tasks}"
+        mode="SingleSelectMaster"
+        selectionChange=".onTaskSelect"
+        growing="true"
+        growingThreshold="10">
+        <columns>
+          <Column><Text text="Task Number" /></Column>
+          <Column><Text text="Material" /></Column>
+          <Column><Text text="Source Bin" /></Column>
+          <Column><Text text="Destination Bin" /></Column>
+          <Column><Text text="Handling Unit" /></Column>
+          <Column><Text text="Serial Number" /></Column>
+          <Column><Text text="Status" /></Column>
+          <Column hAlign="End"><Text text="Actions" /></Column>
+        </columns>
+        <items>
+          <ColumnListItem type="Navigation" press=".onTaskPress">
+            <cells>
+              <ObjectIdentifier title="{taskNumber}" />
+              <Text text="{material}" />
+              <Text text="{sourceBin}" />
+              <Text text="{destinationBin}" />
+              <Text text="{handlingUnit}" />
+              <Text text="{serialNumber}" />
+              <ObjectStatus
+                text="{status}"
+                state="{= ${status} === 'Open' ? 'Information' : (${status} === 'Confirmed' ? 'Success' : 'Error') }" />
+              <HBox justifyContent="End">
+                <Button
+                  text="Scan Pick"
+                  icon="sap-icon://bar-code"
+                  type="Emphasized"
+                  press=".onScanTask" />
+              </HBox>
+            </cells>
+          </ColumnListItem>
+        </items>
+      </Table>
+    </content>
+  </Page>
+</mvc:View>

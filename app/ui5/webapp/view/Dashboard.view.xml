@@ -1,0 +1,56 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="onescanpicker.ui5.controller.Dashboard">
+  <Page title="Warehouse Dashboard" class="sapUiResponsivePadding--content">
+    <headerContent>
+      <Button icon="sap-icon://refresh" text="Refresh" press=".onRefresh" />
+    </headerContent>
+    <content>
+      <VBox class="sapUiSmallMargin" width="100%" renderType="Bare">
+        <Title text="Live Warehouse Metrics" level="H2" />
+        <Text text="Mock-backed data synchronized with CAP &amp; SQLite runtime." wrapping="true" class="sapUiTinyMarginBottom" />
+
+        <FlexBox wrap="Wrap" justifyContent="SpaceBetween" class="sapUiSmallMarginTop">
+          <GenericTile header="Open Tasks" subheader="Awaiting Pick" class="sapUiTinyMarginEnd sapUiSmallMarginBottom" press=".onGoToTasks">
+            <TileContent>
+              <NumericContent value="{dashboard>/openTasks}" valueColor="Neutral" indicator="Up" icon="sap-icon://task" />
+            </TileContent>
+          </GenericTile>
+
+          <GenericTile header="Confirmed Tasks" subheader="Verified Picks" class="sapUiTinyMarginEnd sapUiSmallMarginBottom" press=".onGoToTasks">
+            <TileContent>
+              <NumericContent value="{dashboard>/confirmedTasks}" valueColor="Good" indicator="None" icon="sap-icon://accept" />
+            </TileContent>
+          </GenericTile>
+
+          <GenericTile header="Failed Tasks" subheader="Discrepancies" class="sapUiTinyMarginEnd sapUiSmallMarginBottom" press=".onGoToTasks">
+            <TileContent>
+              <NumericContent value="{dashboard>/failedTasks}" valueColor="Error" indicator="Down" icon="sap-icon://error" />
+            </TileContent>
+          </GenericTile>
+        </FlexBox>
+
+        <Panel headerText="System Connection &amp; Runtime" class="sapUiSmallMarginTop">
+          <content>
+            <VBox class="sapUiSmallMargin">
+              <HBox alignItems="Center">
+                <Text text="Connection Status: " class="sapUiTinyMarginEnd" />
+                <ObjectStatus text="{dashboard>/connectionStatus}" state="Success" />
+              </HBox>
+              <Text text="{= 'Mode: ' + ${dashboard>/mode} + ' | Endpoint: ' + ${dashboard>/endpoint} }" class="sapUiTinyMarginTop" />
+            </VBox>
+          </content>
+        </Panel>
+
+        <Panel headerText="Quick Actions" class="sapUiSmallMarginTop">
+          <content>
+            <HBox wrap="Wrap">
+              <Button text="Start Pick Scan" icon="sap-icon://bar-code" type="Emphasized" press=".onGoToScan" class="sapUiSmallMarginEnd sapUiTinyMarginBottom" />
+              <Button text="View All Tasks" icon="sap-icon://task" press=".onGoToTasks" class="sapUiSmallMarginEnd sapUiTinyMarginBottom" />
+              <Button text="View Pick History" icon="sap-icon://history" press=".onGoToHistory" class="sapUiSmallMarginEnd sapUiTinyMarginBottom" />
+              <Button text="System Diagnostics" icon="sap-icon://sys-monitor" press=".onGoToDiagnostics" class="sapUiTinyMarginBottom" />
+            </HBox>
+          </content>
+        </Panel>
+      </VBox>
+    </content>
+  </Page>
+</mvc:View>

@@ -1,0 +1,19 @@
+{
+  "connection": {
+    "mode": "mock",
+    "status": "Connected",
+    "endpoint": "local-sqlite",
+    "latencyMs": 12
+  },
+  "tasks": [
+    {
+      "taskNumber": "WT1001",
+      "material": "MAT-1001",
+      "sourceBin": "BIN-A01",
+      "destinationBin": "BIN-B01",
+      "handlingUnit": "HU-9001",
+      "serialNumber": "SER-1001",
+      "status": "Open"
+    }
+  ]
+}

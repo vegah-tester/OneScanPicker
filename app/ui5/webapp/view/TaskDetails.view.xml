@@ -1,0 +1,73 @@
+<mvc:View
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  xmlns:f="sap.ui.layout.form"
+  controllerName="onescanpicker.ui5.controller.TaskDetails">
+  <Page
+    title="Warehouse Task Details"
+    showNavButton="true"
+    navButtonPress=".onNavBack"
+    class="sapUiResponsivePadding--content">
+    <content>
+      <VBox class="sapUiSmallMargin">
+        <ObjectHeader
+          title="{detail>/taskNumber}"
+          number="{detail>/material}"
+          numberUnit="Material"
+          intro="Warehouse Pick Task">
+          <statuses>
+            <ObjectStatus
+              text="{detail>/status}"
+              state="{= ${detail>/status} === 'Open' ? 'Information' : (${detail>/status} === 'Confirmed' ? 'Success' : 'Error') }" />
+          </statuses>
+          <attributes>
+            <ObjectAttribute title="Handling Unit" text="{detail>/handlingUnit}" />
+            <ObjectAttribute title="Serial Number" text="{detail>/serialNumber}" />
+          </attributes>
+        </ObjectHeader>
+
+        <Panel headerText="Pick Locations &amp; Parameters" class="sapUiSmallMarginTop">
+          <f:SimpleForm editable="false" layout="ColumnLayout">
+            <f:content>
+              <Label text="Source Bin" />
+              <Text text="{detail>/sourceBin}" />
+
+              <Label text="Destination Bin" />
+              <Text text="{detail>/destinationBin}" />
+
+              <Label text="Material SKU" />
+              <Text text="{detail>/material}" />
+
+              <Label text="Handling Unit ID" />
+              <Text text="{detail>/handlingUnit}" />
+
+              <Label text="Serial Number" />
+              <Text text="{detail>/serialNumber}" />
+
+              <Label text="Task Status" />
+              <Text text="{detail>/status}" />
+            </f:content>
+          </f:SimpleForm>
+        </Panel>
+
+        <Panel headerText="Step-by-Step Verification Protocol" class="sapUiSmallMarginTop">
+          <content>
+            <VBox class="sapUiSmallMargin">
+              <Text text="1. Navigate to Source Bin: {detail>/sourceBin}" class="sapUiTinyMarginBottom" />
+              <Text text="2. Locate Material: {detail>/material} with HU: {detail>/handlingUnit}" class="sapUiTinyMarginBottom" />
+              <Text text="3. Scan 2D Barcode/QR string to verify bin and serial alignment." class="sapUiTinyMarginBottom" />
+              <Text text="4. Confirm transfer to Destination Bin: {detail>/destinationBin}" />
+            </VBox>
+          </content>
+        </Panel>
+      </VBox>
+    </content>
+    <footer>
+      <OverflowToolbar>
+        <ToolbarSpacer />
+        <Button text="Proceed to Scan &amp; Verify" icon="sap-icon://bar-code" type="Emphasized" press=".onGoToScan" />
+        <Button text="Direct Confirm Task" icon="sap-icon://accept" press=".onConfirmTask" />
+      </OverflowToolbar>
+    </footer>
+  </Page>
+</mvc:View>

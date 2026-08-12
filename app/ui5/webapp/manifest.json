@@ -1,0 +1,115 @@
+{
+  "_version": "1.60.0",
+  "sap.app": {
+    "id": "onescanpicker.ui5",
+    "type": "application",
+    "title": "OneScanPicker",
+    "description": "OneScan Intelligent Picking & Verification",
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/one-scan-picker/",
+        "type": "OData",
+        "settings": {
+          "odataVersion": "4.0"
+        }
+      }
+    }
+  },
+  "sap.ui5": {
+    "rootView": {
+      "viewName": "onescanpicker.ui5.view.App",
+      "type": "XML",
+      "async": true,
+      "id": "appRoot"
+    },
+    "dependencies": {
+      "minUI5Version": "1.120.0",
+      "libs": {
+        "sap.m": {},
+        "sap.f": {},
+        "sap.ui.core": {},
+        "sap.tnt": {}
+      }
+    },
+    "models": {
+      "": {
+        "dataSource": "mainService",
+        "type": "sap.ui.model.odata.v4.ODataModel",
+        "settings": {
+          "synchronizationMode": "None",
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      }
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "viewType": "XML",
+        "viewPath": "onescanpicker.ui5.view",
+        "controlId": "appContainer",
+        "controlAggregation": "pages",
+        "async": true
+      },
+      "routes": [
+        {
+          "name": "dashboard",
+          "pattern": "",
+          "target": "dashboard"
+        },
+        {
+          "name": "taskList",
+          "pattern": "tasks",
+          "target": "taskList"
+        },
+        {
+          "name": "taskDetails",
+          "pattern": "tasks/{taskId}",
+          "target": "taskDetails"
+        },
+        {
+          "name": "scan",
+          "pattern": "scan",
+          "target": "scan"
+        },
+        {
+          "name": "history",
+          "pattern": "history",
+          "target": "history"
+        },
+        {
+          "name": "diagnostics",
+          "pattern": "diagnostics",
+          "target": "diagnostics"
+        }
+      ],
+      "targets": {
+        "dashboard": {
+          "viewId": "dashboardView",
+          "viewName": "Dashboard"
+        },
+        "taskList": {
+          "viewId": "taskListView",
+          "viewName": "TaskList"
+        },
+        "taskDetails": {
+          "viewId": "taskDetailsView",
+          "viewName": "TaskDetails"
+        },
+        "scan": {
+          "viewId": "scanView",
+          "viewName": "Scan"
+        },
+        "history": {
+          "viewId": "historyView",
+          "viewName": "History"
+        },
+        "diagnostics": {
+          "viewId": "diagnosticsView",
+          "viewName": "Diagnostics"
+        }
+      }
+    }
+  }
+}

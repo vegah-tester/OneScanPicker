@@ -1,0 +1,35 @@
+<mvc:View
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  xmlns:tnt="sap.tnt"
+  controllerName="onescanpicker.ui5.controller.App">
+  <tnt:ToolPage id="toolPage">
+    <tnt:header>
+      <tnt:ToolHeader>
+        <Button
+          id="sideNavigationToggleButton"
+          icon="sap-icon://menu2"
+          type="Transparent"
+          press=".onSideNavButtonPress" />
+        <Title text="OneScan Intelligent Picking &amp; Verification" level="H2" class="sapUiSmallMarginBegin" />
+        <ToolbarSpacer />
+        <ObjectStatus text="{dashboard>/connectionStatus}" state="Success" class="sapUiSmallMarginEnd" />
+        <Button icon="sap-icon://sys-help" type="Transparent" press=".onHelpPress" />
+      </tnt:ToolHeader>
+    </tnt:header>
+    <tnt:sideContent>
+      <tnt:SideNavigation id="sideNavigation" itemSelect=".onItemSelect">
+        <tnt:NavigationList id="navigationList" selectedKey="{appState>/selectedRoute}">
+          <tnt:NavigationListItem text="Dashboard" key="dashboard" icon="sap-icon://dashboard" />
+          <tnt:NavigationListItem text="Warehouse Tasks" key="taskList" icon="sap-icon://task" />
+          <tnt:NavigationListItem text="Scan &amp; Verify" key="scan" icon="sap-icon://bar-code" />
+          <tnt:NavigationListItem text="Pick History" key="history" icon="sap-icon://history" />
+          <tnt:NavigationListItem text="Diagnostics" key="diagnostics" icon="sap-icon://sys-monitor" />
+        </tnt:NavigationList>
+      </tnt:SideNavigation>
+    </tnt:sideContent>
+    <tnt:mainContents>
+      <App id="appContainer" />
+    </tnt:mainContents>
+  </tnt:ToolPage>
+</mvc:View>

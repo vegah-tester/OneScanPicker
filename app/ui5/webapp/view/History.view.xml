@@ -1,0 +1,47 @@
+<mvc:View
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  controllerName="onescanpicker.ui5.controller.History">
+  <Page title="Pick Scan History" class="sapUiResponsivePadding--content">
+    <headerContent>
+      <Button icon="sap-icon://refresh" text="Refresh" press=".onRefresh" />
+    </headerContent>
+    <subHeader>
+      <OverflowToolbar>
+        <SearchField width="50%" placeholder="Search scan log..." search=".onSearch" id="historySearchField" />
+      </OverflowToolbar>
+    </subHeader>
+    <content>
+      <Table
+        id="historyTable"
+        items="{/Scans}"
+        growing="true"
+        growingThreshold="15">
+        <columns>
+          <Column><Text text="Scan Value Payload" /></Column>
+          <Column><Text text="Parsed Bin" /></Column>
+          <Column><Text text="Material" /></Column>
+          <Column><Text text="Handling Unit" /></Column>
+          <Column><Text text="Serial Number" /></Column>
+          <Column><Text text="Status" /></Column>
+          <Column><Text text="Message" /></Column>
+        </columns>
+        <items>
+          <ColumnListItem>
+            <cells>
+              <Text text="{scanValue}" />
+              <Text text="{parsedBin}" />
+              <Text text="{material}" />
+              <Text text="{handlingUnit}" />
+              <Text text="{serialNumber}" />
+              <ObjectStatus
+                text="{= ${isValid} ? 'Valid' : 'Invalid' }"
+                state="{= ${isValid} ? 'Success' : 'Error' }" />
+              <Text text="{message}" />
+            </cells>
+          </ColumnListItem>
+        </items>
+      </Table>
+    </content>
+  </Page>
+</mvc:View>

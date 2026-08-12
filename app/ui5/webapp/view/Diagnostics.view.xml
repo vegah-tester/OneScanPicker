@@ -1,0 +1,72 @@
+<mvc:View
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  xmlns:f="sap.ui.layout.form"
+  controllerName="onescanpicker.ui5.controller.Diagnostics">
+  <Page title="System Diagnostics" class="sapUiResponsivePadding--content">
+    <headerContent>
+      <Button icon="sap-icon://sys-monitor" text="Run Diagnostic Ping" type="Emphasized" press=".onRunDiagnostic" />
+    </headerContent>
+    <content>
+      <VBox class="sapUiSmallMargin">
+        <Panel headerText="Backend &amp; Database Health" class="sapUiSmallMarginBottom">
+          <content>
+            <f:SimpleForm editable="false" layout="ColumnLayout">
+              <f:content>
+                <Label text="Runtime Mode" />
+                <Text text="{diag>/mode}" />
+
+                <Label text="Active Endpoint" />
+                <Text text="{diag>/endpoint}" />
+
+                <Label text="Database Engine" />
+                <Text text="SQLite (Local File)" />
+
+                <Label text="Measured Latency" />
+                <Text text="{diag>/latencyMs} ms" />
+
+                <Label text="Connection Status" />
+                <ObjectStatus text="{diag>/status}" state="{= ${diag>/status} === 'Connected' ? 'Success' : 'Warning' }" />
+
+                <Label text="Last Checked" />
+                <Text text="{diag>/lastCheck}" />
+              </f:content>
+            </f:SimpleForm>
+          </content>
+        </Panel>
+
+        <Panel headerText="Enterprise Architecture Layer Readiness">
+          <content>
+            <List>
+              <StandardListItem
+                title="CAP Backend (Node.js)"
+                description="Serving OData V4 services on port 4004"
+                icon="sap-icon://accept"
+                iconColor="Positive" />
+              <StandardListItem
+                title="SQLite Local Persistence"
+                description="Database db.sqlite seeded with initial tasks &amp; scan records"
+                icon="sap-icon://accept"
+                iconColor="Positive" />
+              <StandardListItem
+                title="UI5 Middleware Proxy"
+                description="Forwarding /odata/v4/one-scan-picker to local CAP instance"
+                icon="sap-icon://accept"
+                iconColor="Positive" />
+              <StandardListItem
+                title="DestinationService Abstraction"
+                description="Ready for BTP Destination Service binding"
+                icon="sap-icon://sys-enter-2"
+                iconColor="Critical" />
+              <StandardListItem
+                title="EWMConnectorService Layer"
+                description="Decoupled integration service ready for SAP EWM payload translation"
+                icon="sap-icon://sys-enter-2"
+                iconColor="Critical" />
+            </List>
+          </content>
+        </Panel>
+      </VBox>
+    </content>
+  </Page>
+</mvc:View>
