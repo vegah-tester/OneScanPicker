@@ -9,24 +9,30 @@
     </headerContent>
     <content>
       <VBox class="sapUiSmallMargin">
-        <Panel headerText="Backend &amp; Database Health" class="sapUiSmallMarginBottom">
+        <Panel headerText="Backend, Destination &amp; EWM Health" class="sapUiSmallMarginBottom">
           <content>
             <f:SimpleForm editable="false" layout="ColumnLayout">
               <f:content>
                 <Label text="Runtime Mode" />
-                <Text text="{diag>/mode}" />
+                <ObjectStatus text="{diag>/mode}" state="{= ${diag>/mode} === 'mock' ? 'Information' : 'Success' }" />
+
+                <Label text="CAP Backend Status" />
+                <ObjectStatus text="{diag>/status}" state="{= ${diag>/status} === 'Connected' ? 'Success' : 'Error' }" />
+
+                <Label text="SAP EWM Adapter Status" />
+                <ObjectStatus text="{diag>/ewmStatus}" state="Success" />
+
+                <Label text="BTP Destination Status" />
+                <ObjectStatus text="{diag>/destinationStatus}" state="{= ${diag>/mode} === 'mock' ? 'None' : 'Success' }" />
+
+                <Label text="Active Destination Name" />
+                <Text text="{diag>/destinationName}" />
 
                 <Label text="Active Endpoint" />
                 <Text text="{diag>/endpoint}" />
 
-                <Label text="Database Engine" />
-                <Text text="SQLite (Local File)" />
-
                 <Label text="Measured Latency" />
                 <Text text="{diag>/latencyMs} ms" />
-
-                <Label text="Connection Status" />
-                <ObjectStatus text="{diag>/status}" state="{= ${diag>/status} === 'Connected' ? 'Success' : 'Warning' }" />
 
                 <Label text="Last Checked" />
                 <Text text="{diag>/lastCheck}" />
@@ -34,6 +40,7 @@
             </f:SimpleForm>
           </content>
         </Panel>
+
 
         <Panel headerText="Enterprise Architecture Layer Readiness">
           <content>

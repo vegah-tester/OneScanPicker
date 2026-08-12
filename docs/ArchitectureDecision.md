@@ -58,14 +58,14 @@ Responsible for destination resolution, backend communication, and response mapp
 ### SAP Backend Layer
 Responsible for actual warehouse task execution and authoritative business outcomes.
 
-## Architectural Principles
-- The UI must not know whether it is in mock or production mode.
-- The business contract must stay stable across environments.
-- Integration concerns must be isolated from controllers and view logic.
-- Mock implementations must follow the same shapes and status semantics as production.
+## Adapter Pattern & Dynamic Mode Resolution (Milestone 2)
+To guarantee strict separation between local development and SAP production mode, the integration layer uses a dedicated Adapter Pattern under `services/adapters/`:
+- `EWMConnectorService`: Entry router evaluating `ONE_SCAN_MODE` (`mock` vs `production`).
+- `DestinationService`: Centralized BTP Destination Service resolution and header client builder (`getEWMClient()`).
+- `MockEWMAdapter`: Handles local SQLite persistence (`db.sqlite`) with fallback data structures for offline execution.
+- `SAPEWMAdapter`: Handles SAP OData HTTP requests via BTP Destination Service, mapping field names (`TANUM`, `MATNR`, `VLPLA`, `NLPLA`) to the unified CAP contract shape.
 
-## Compatibility Policy
-- Additive changes are allowed.
-- Breaking field renames are not allowed without a versioned contract.
-- New business states or errors must not change the meaning of existing ones.
-- Local mock behavior must remain semantically aligned with SAP production behavior.
+### Benefits
+- Zero leaking of SAP details or HTTP headers into SAPUI5 controllers or CAP service handlers.
+- Seamless mode switching via environment variable `ONE_SCAN_MODE` without code modifications.
+- Predictable error mapping matching `ErrorCatalog.md` across both local mock and SAP production runtimes.

@@ -1,27 +1,60 @@
 const createLogger = require('./LoggerService').createLogger;
+const { getMode } = require('./DestinationService');
+const MockEWMAdapter = require('./adapters/MockEWMAdapter');
+const SAPEWMAdapter = require('./adapters/SAPEWMAdapter');
 
 const logger = createLogger('EWMConnectorService');
 
-function sendToEwm(operation, payload) {
-  const mode = process.env.ONE_SCAN_MODE || 'mock';
-  logger.info(`EWMConnector operation: ${operation} (mode: ${mode})`);
-
+function getAdapter() {
+  const mode = getMode();
   if (mode === 'production') {
-    logger.info(`[Production EWM Connector] Dispatching ${operation} via SAP BTP Destination Service...`);
-    return {
-      success: true,
-      operation,
-      payload,
-      connectorMode: 'production'
-    };
+    logger.info('[EWMConnectorService] Using SAPEWMAdapter for production requests');
+    return SAPEWMAdapter;
   }
-
-  return {
-    success: true,
-    operation,
-    payload,
-    connectorMode: 'mock'
-  };
+  logger.info('[EWMConnectorService] Using MockEWMAdapter for mock requests');
+  return MockEWMAdapter;
 }
 
-module.exports = { sendToEwm };
+async function getOpenWarehouseTasks() {
+  return getAdapter().getOpenWarehouseTasks();
+}
+
+async function getWarehouseTask(taskId) {
+  return getAdapter().getWarehouseTask(taskId);
+}
+
+async function validateScan(payload) {
+  return getAdapter().validateScan(payload);
+}
+
+async function confirmWarehouseTask(taskNumber) {
+  return getAdapter().confirmWarehouseTask(taskNumber);
+}
+
+async function getPickHistory() {
+  return getAdapter().getPickHistory();
+}
+
+async function getConnectionStatus() {
+  return getAdapter().getConnectionStatus();
+}
+
+function sendToEwm(operation, payload) {
+  const mode = getMode();
+  logger.info(`EWMConnector legacy sendToEwm operation: ${operation} (mode: ${mode})`);
+  if (mode === 'production') {
+    return SAPEWMAdapter.confirmWarehouseTask(payload ? payload.taskNumber : '');
+  }
+  return MockEWMAdapter.confirmWarehouseTask(payload ? payload.taskNumber : '');
+}
+
+module.exports = {
+  getOpenWarehouseTasks,
+  getWarehouseTask,
+  validateScan,
+  confirmWarehouseTask,
+  getPickHistory,
+  getConnectionStatus,
+  sendToEwm
+};
+

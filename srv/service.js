@@ -3,7 +3,7 @@ const { createLogger } = require('../services/LoggerService');
 const { scanValue } = require('../services/ScanService');
 const { validatePick } = require('../services/ValidationService');
 const { confirmTask } = require('../services/WarehouseTaskService');
-const { getConnectionStatus } = require('../services/DestinationService');
+const EWMConnectorService = require('../services/EWMConnectorService');
 const { INSERT, SELECT, UPDATE } = cds.ql;
 
 const logger = createLogger('OneScanPickerService');
@@ -47,9 +47,8 @@ cds.on('served', async () => {
 
 module.exports = cds.service.impl(function () {
   this.on('READ', 'DashboardSummary', async (req) => {
-    const db = await cds.connect.to('db');
-    const tasks = await db.run(SELECT.from('onescanpicker.db.WarehouseTasks'));
-    const connection = getConnectionStatus();
+    const tasks = await EWMConnectorService.getOpenWarehouseTasks();
+    const connection = await EWMConnectorService.getConnectionStatus();
 
     return [{
       ID: 1,
@@ -60,6 +59,10 @@ module.exports = cds.service.impl(function () {
       mode: connection.mode,
       endpoint: connection.endpoint
     }];
+  });
+
+  this.on('READ', 'Tasks', async (req) => {
+    return EWMConnectorService.getOpenWarehouseTasks();
   });
 
   this.on('scan', async (req) => {
@@ -93,28 +96,17 @@ module.exports = cds.service.impl(function () {
   this.on('confirm', async (req) => {
     logger.info('confirm action invoked');
     const taskNumber = req.data.taskNumber;
-    const result = confirmTask(taskNumber);
-    if (result && result.success && taskNumber) {
-      try {
-        const db = await cds.connect.to('db');
-        await db.run(UPDATE('onescanpicker.db.WarehouseTasks')
-          .set({ status: 'Confirmed' })
-          .where({ taskNumber: taskNumber }));
-      } catch (e) {
-        logger.error('Failed to update warehouse task status', e);
-      }
-    }
-    return result;
+    return confirmTask(taskNumber);
   });
 
   this.on('connection', async () => {
     logger.info('connection action invoked');
-    return getConnectionStatus();
+    return EWMConnectorService.getConnectionStatus();
   });
 
   this.on('history', async (req) => {
     logger.info('history action invoked');
-    const db = await cds.connect.to('db');
-    return db.run(SELECT.from('onescanpicker.db.ScanRecords').orderBy('createdAt desc'));
+    return EWMConnectorService.getPickHistory();
   });
-});
+});
+

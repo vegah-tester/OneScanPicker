@@ -1,9 +1,9 @@
 const createLogger = require('./LoggerService').createLogger;
-const { sendToEwm } = require('./EWMConnectorService');
+const { confirmWarehouseTask } = require('./EWMConnectorService');
 
 const logger = createLogger('WarehouseTaskService');
 
-function confirmTask(taskNumber) {
+async function confirmTask(taskNumber) {
   const value = String(taskNumber || '').trim();
 
   if (!value) {
@@ -14,12 +14,19 @@ function confirmTask(taskNumber) {
     };
   }
 
-  const ewmResult = sendToEwm('CONFIRM_WAREHOUSE_TASK', { taskNumber: value });
+  const ewmResult = await confirmWarehouseTask(value);
+  if (ewmResult && ewmResult.error) {
+    return {
+      success: false,
+      message: ewmResult.error.message || 'Task confirmation failed'
+    };
+  }
 
   return {
     success: true,
-    message: `Task ${value} confirmed successfully (${ewmResult.connectorMode} mode)`
+    message: (ewmResult && ewmResult.message) || `Task ${value} confirmed successfully`
   };
 }
 
-module.exports = { confirmTask };
+module.exports = { confirmTask };
+

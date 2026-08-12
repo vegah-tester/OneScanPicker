@@ -11,6 +11,9 @@ sap.ui.define([
         mode: "mock",
         endpoint: "http://localhost:4004/odata/v4/one-scan-picker/",
         status: "Connected",
+        destinationName: "LOCAL_MOCK_DESTINATION",
+        destinationStatus: "Not Configured (Mock Mode)",
+        ewmStatus: "Mock Mode (SQLite)",
         latencyMs: 12,
         lastCheck: new Date().toLocaleTimeString()
       });
@@ -42,6 +45,9 @@ sap.ui.define([
               mode: result.mode || "mock",
               endpoint: result.endpoint || "http://localhost:4004/odata/v4/one-scan-picker/",
               status: result.status || "Connected",
+              destinationName: result.destinationName || "LOCAL_MOCK_DESTINATION",
+              destinationStatus: result.destinationStatus || "Not Configured (Mock Mode)",
+              ewmStatus: result.ewmStatus || "Mock Mode (SQLite)",
               latencyMs: nLatency,
               lastCheck: new Date().toLocaleTimeString()
             });
@@ -59,4 +65,4 @@ sap.ui.define([
         });
     }
   });
-});
+});

@@ -42,8 +42,12 @@ type ConfirmationResult {
 }
 
 type ConnectionResult {
-  mode      : String;
-  status    : String;
-  endpoint  : String;
-  latencyMs : Integer;
-}
+  mode              : String;
+  status            : String;
+  destinationName   : String;
+  destinationStatus : String;
+  ewmStatus         : String;
+  endpoint          : String;
+  latencyMs         : Integer;
+  lastCheck         : String;
+}

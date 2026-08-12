@@ -212,11 +212,16 @@ Returns connection and runtime mode status.
   "data": {
     "mode": "mock",
     "status": "Connected",
+    "destinationName": "LOCAL_MOCK_DESTINATION",
+    "destinationStatus": "Not Configured (Mock Mode)",
+    "ewmStatus": "Mock Mode (SQLite)",
     "endpoint": "local-sqlite",
-    "latencyMs": 12
+    "latencyMs": 12,
+    "lastCheck": "2026-08-12T12:00:00.000Z"
   }
 }
 ```
+
 
 ### Errors
 - 503 `CONNECTION_UNAVAILABLE`

@@ -11,7 +11,7 @@
     "start": "concurrently -k -n backend,ui5 \"npm run start:backend\" \"npm run start:ui5\"",
     "watch": "cds watch --port 4004",
     "lint": "node -e \"console.log('No lint configured yet')\"",
-    "test": "node -e \"console.log('No tests configured yet')\""
+    "test": "node test/index.test.js"
   },
   "dependencies": {
     "@sap/cds": "^8.9.5",
