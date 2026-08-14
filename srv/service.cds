@@ -50,4 +50,6 @@ type ConnectionResult {
   endpoint          : String;
   latencyMs         : Integer;
   lastCheck         : String;
-}
+  csrfStatus        : String;
+  details           : String;
+}

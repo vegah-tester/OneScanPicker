@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.0 - Milestone 3: Full ECC to EWM Integration, Direct Gateway & BTP Cloud Connector Connectivity (2026-08-14)
+- **Direct Gateway & BTP Mode Router**: Enhanced `DestinationService.js` and `EWMConnectorService.js` to support three execution modes: `mock` (SQLite), `direct` (Direct On-Premise SAP Gateway over LAN/RDP), and `production` (BTP Destination Service + Cloud Connector).
+- **Production SAP EWM Adapter**: Implemented real HTTP engine in `SAPEWMAdapter.js` with automated `X-CSRF-Token` fetching (`getCsrfToken`), session cookie persistence, ABAP field abbreviation normalization (`TANUM`, `VLPLA`, `NLPLA`, `VLENR`, `SERNR`), and structured SAP Gateway error handling.
+- **Diagnostic CLI Tool**: Added `scripts/test-sap-connection.js` for standalone terminal verification of SAP Gateway reachability, CSRF negotiation, open Warehouse Task querying, and latency metrics.
+- **BTP Deployment Scaffolding**: Created `mta.yaml` (MTA deployment descriptor for CAP + UI5 + Destination + Connectivity + XSUAA), `xs-security.json` (role templates & scopes), and `default-env.json.example` (local BTP environment simulation).
+- **Diagnostics UI Enhancement**: Updated `Diagnostics.view.xml` and `Diagnostics.controller.js` to display CSRF handshake status and connection details dynamically from the backend `/connection` action.
+- **End-to-End Runbooks**: Authored comprehensive integration guides:
+  - `docs/integration/ECC-EWM-EndToEnd-Integration.md` (ECC Sales Order/Delivery -> EWM ODO/WT -> OneScanPicker confirmation -> ECC Goods Issue flow).
+  - `docs/integration/Cloud-Connector-Setup-Guide.md` (SAP Cloud Connector pairing, virtual-to-internal system mapping, resource path whitelisting).
+  - `docs/integration/SAP-Gateway-Service-Configuration.md` (ABAP `/IWFND/MAINT_SERVICE`, `SICF` node activation, user authorizations).
+- **Expanded Test Suite**: Updated `test/index.test.js` to 21 test cases validating direct gateway resolution, CSRF handling, mock functions, and adapter fallbacks.
+
 ## 0.3.0 - Milestone 2: SAP EWM Connector & BTP Integration Abstraction (2026-08-12)
 - **Adapter Architecture**: Created `MockEWMAdapter.js` and `SAPEWMAdapter.js` under `services/adapters/` routed dynamically via `EWMConnectorService.js` based on `ONE_SCAN_MODE` (`mock` vs `production`).
 - **Destination Abstraction**: Enhanced `services/DestinationService.js` with `getMode()`, `getDestinationInfo()`, `getEWMClient()`, and `getConnectionStatus()`, supporting BTP Destination Service resolution without exposing credentials or secrets.
@@ -21,4 +33,3 @@
 - Added OData-backed dashboard contract and live mock data summary.
 - Added launch, tasks, environment, and ignore files for VS Code usage.
 - Added startup guide and local prototype wiring.
-

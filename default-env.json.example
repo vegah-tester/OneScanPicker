@@ -1,0 +1,53 @@
+{
+  "VCAP_SERVICES": {
+    "destination": [
+      {
+        "name": "onescanpicker-destination-service",
+        "label": "destination",
+        "tags": ["destination", "connectivity"],
+        "plan": "lite",
+        "credentials": {
+          "clientid": "sb-onescanpicker-dest-client-id",
+          "clientsecret": "sample-client-secret",
+          "url": "https://sample-subaccount.authentication.eu10.hana.ondemand.com",
+          "uri": "https://destination-configuration.cfapps.eu10.hana.ondemand.com"
+        }
+      }
+    ],
+    "connectivity": [
+      {
+        "name": "onescanpicker-connectivity-service",
+        "label": "connectivity",
+        "tags": ["connectivity"],
+        "plan": "lite",
+        "credentials": {
+          "clientid": "sb-onescanpicker-conn-client-id",
+          "clientsecret": "sample-connectivity-secret",
+          "url": "https://sample-subaccount.authentication.eu10.hana.ondemand.com",
+          "onpremise_proxy_host": "connectivityproxy.internal.cf.eu10.hana.ondemand.com",
+          "onpremise_proxy_http_port": "20003",
+          "onpremise_proxy_port": "20004"
+        }
+      }
+    ],
+    "xsuaa": [
+      {
+        "name": "onescanpicker-auth",
+        "label": "xsuaa",
+        "tags": ["xsuaa"],
+        "plan": "application",
+        "credentials": {
+          "clientid": "sb-onescanpicker-auth-client-id",
+          "clientsecret": "sample-auth-secret",
+          "url": "https://sample-subaccount.authentication.eu10.hana.ondemand.com"
+        }
+      }
+    ]
+  },
+  "VCAP_APPLICATION": {
+    "application_name": "onescanpicker-srv",
+    "application_uris": [
+      "onescanpicker-srv.cfapps.eu10.hana.ondemand.com"
+    ]
+  }
+}

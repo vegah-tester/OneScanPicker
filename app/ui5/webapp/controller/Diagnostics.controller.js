@@ -14,7 +14,9 @@ sap.ui.define([
         destinationName: "LOCAL_MOCK_DESTINATION",
         destinationStatus: "Not Configured (Mock Mode)",
         ewmStatus: "Mock Mode (SQLite)",
+        csrfStatus: "N/A (Mock Mode)",
         latencyMs: 12,
+        details: "Local SQLite mock persistence layer.",
         lastCheck: new Date().toLocaleTimeString()
       });
       this.getView().setModel(oDiagModel, "diag");
@@ -48,21 +50,24 @@ sap.ui.define([
               destinationName: result.destinationName || "LOCAL_MOCK_DESTINATION",
               destinationStatus: result.destinationStatus || "Not Configured (Mock Mode)",
               ewmStatus: result.ewmStatus || "Mock Mode (SQLite)",
-              latencyMs: nLatency,
+              csrfStatus: result.csrfStatus || "N/A",
+              details: result.details || "Connection established successfully.",
+              latencyMs: result.latencyMs !== undefined ? result.latencyMs : nLatency,
               lastCheck: new Date().toLocaleTimeString()
             });
           }
-          MessageToast.show("Diagnostic check completed in " + nLatency + "ms.");
+          MessageToast.show("Diagnostic check completed (" + (result.latencyMs || nLatency) + "ms).");
         })
         .catch(function (err) {
           var nLatency = Date.now() - nStart;
           if (oDiagModel) {
             oDiagModel.setProperty("/status", "Offline / Error");
             oDiagModel.setProperty("/latencyMs", nLatency);
+            oDiagModel.setProperty("/details", "Failed to contact CAP backend: " + err.message);
             oDiagModel.setProperty("/lastCheck", new Date().toLocaleTimeString());
           }
           MessageToast.show("Diagnostic check failed: " + err.message);
         });
     }
   });
-});
+});

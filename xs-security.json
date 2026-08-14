@@ -1,0 +1,45 @@
+{
+  "xsappname": "onescanpicker",
+  "tenant-mode": "dedicated",
+  "description": "Security profile for OneScanPicker SAP EWM Integration",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.PickerUser",
+      "description": "Warehouse picker mobile application user"
+    },
+    {
+      "name": "$XSAPPNAME.WarehouseSupervisor",
+      "description": "Warehouse supervisor with task monitoring and diagnostics access"
+    },
+    {
+      "name": "$XSAPPNAME.SystemAdmin",
+      "description": "System administrator with full diagnostic and configuration access"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "PickerUserRole",
+      "description": "Access to Scan and Confirm Warehouse Tasks",
+      "scope-references": [
+        "$XSAPPNAME.PickerUser"
+      ]
+    },
+    {
+      "name": "SupervisorRole",
+      "description": "Access to Dashboard, Task List, and Diagnostics",
+      "scope-references": [
+        "$XSAPPNAME.PickerUser",
+        "$XSAPPNAME.WarehouseSupervisor"
+      ]
+    },
+    {
+      "name": "AdminRole",
+      "description": "Full administrative access",
+      "scope-references": [
+        "$XSAPPNAME.PickerUser",
+        "$XSAPPNAME.WarehouseSupervisor",
+        "$XSAPPNAME.SystemAdmin"
+      ]
+    }
+  ]
+}

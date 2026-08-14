@@ -1,0 +1,96 @@
+_schema-version: '3.1.0'
+ID: onescanpicker
+description: "OneScan Intelligent Picking & Verification for SAP EWM on SAP BTP"
+version: 1.0.0
+
+modules:
+  # --------------------- CAP BACKEND SERVER -----------------------
+  - name: onescanpicker-srv
+    type: nodejs
+    path: gen/srv
+    requires:
+      - name: onescanpicker-db
+      - name: onescanpicker-auth
+      - name: onescanpicker-destination-service
+      - name: onescanpicker-connectivity-service
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    parameters:
+      buildpack: nodejs_buildpack
+      memory: 512M
+      disk-quota: 1024M
+    properties:
+      ONE_SCAN_MODE: production
+      ONE_SCAN_DESTINATION_NAME: SAP_EWM_DESTINATION
+      SAP_EWM_CLIENT: '100'
+
+  # -------------------- DATABASE DEPLOYER ------------------------
+  - name: onescanpicker-db-deployer
+    type: hdb
+    path: gen/db
+    requires:
+      - name: onescanpicker-db
+    parameters:
+      buildpack: nodejs_buildpack
+      memory: 256M
+
+  # ------------------- SAPUI5 APPLICATION ------------------------
+  - name: onescanpicker-ui5
+    type: html5
+    path: app/ui5
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm install
+        - npm run build
+
+resources:
+  # -------------------- HANA CLOUD DATABASE -----------------------
+  - name: onescanpicker-db
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+
+  # ----------------- XSUAA SECURITY SERVICE -----------------------
+  - name: onescanpicker-auth
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json
+      config:
+        xsappname: onescanpicker-${org}-${space}
+        tenant-mode: dedicated
+
+  # ------------------ BTP DESTINATION SERVICE ---------------------
+  - name: onescanpicker-destination-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite
+      config:
+        HTML5Runtime_enabled: true
+        init_data:
+          instance:
+            destinations:
+              - Name: SAP_EWM_DESTINATION
+                Description: "On-Premise SAP EWM / SAP Gateway Endpoint via Cloud Connector"
+                Type: HTTP
+                URL: "http://virtual-sap-ewm:44300/sap/opu/odata/scwm/WAREHOUSE_TASK_SRV"
+                ProxyType: OnPremise
+                Authentication: BasicAuthentication
+                User: SAP_USER
+                Password: SAP_PASSWORD
+                sap-client: "100"
+            existing_destinations_policy: update
+
+  # ----------------- BTP CONNECTIVITY SERVICE ---------------------
+  - name: onescanpicker-connectivity-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: connectivity
+      service-plan: lite

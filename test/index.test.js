@@ -6,7 +6,8 @@ const SAPEWMAdapter = require('../services/adapters/SAPEWMAdapter');
 
 async function runTests() {
   console.log('==================================================');
-  console.log('   OneScanPicker Milestone 2 Test Suite');
+  console.log('   OneScanPicker Milestone 3 Test Suite');
+  console.log('   SAP ECC <-> EWM & BTP Integration Coverage');
   console.log('==================================================\n');
 
   let passed = 0;
@@ -38,13 +39,26 @@ async function runTests() {
     assert.strictEqual(info.status, 'Connected');
   });
 
+  await test('Configuration: direct gateway mode resolution', () => {
+    process.env.ONE_SCAN_MODE = 'direct';
+    process.env.SAP_EWM_HOST = '192.168.1.50';
+    process.env.SAP_EWM_PORT = '8000';
+    process.env.SAP_EWM_CLIENT = '100';
+
+    assert.strictEqual(DestinationService.getMode(), 'direct');
+    const info = DestinationService.getDestinationInfo();
+    assert.strictEqual(info.mode, 'direct');
+    assert.strictEqual(info.destinationName, 'DIRECT_SAP_GATEWAY');
+    assert.ok(info.endpoint.includes('192.168.1.50:8000'));
+    process.env.ONE_SCAN_MODE = 'mock';
+  });
+
   await test('Configuration: production mode resolution', () => {
     process.env.ONE_SCAN_MODE = 'production';
     assert.strictEqual(DestinationService.getMode(), 'production');
     const info = DestinationService.getDestinationInfo();
     assert.strictEqual(info.mode, 'production');
     assert.strictEqual(info.status, 'Configured');
-    // Reset back to mock for subsequent tests
     process.env.ONE_SCAN_MODE = 'mock';
   });
 
@@ -56,12 +70,32 @@ async function runTests() {
     assert.ok(client.baseUrl);
   });
 
+  await test('DestinationService: getEWMClient returns valid direct config', () => {
+    process.env.ONE_SCAN_MODE = 'direct';
+    process.env.SAP_EWM_HOST = 'saphost.local';
+    process.env.SAP_EWM_PORT = '44300';
+    process.env.SAP_EWM_USE_SSL = 'true';
+    const client = DestinationService.getEWMClient();
+    assert.strictEqual(client.mode, 'direct');
+    assert.ok(client.baseUrl.startsWith('https://saphost.local:44300'));
+    process.env.ONE_SCAN_MODE = 'mock';
+  });
+
   await test('DestinationService: getEWMClient returns valid production config', () => {
     process.env.ONE_SCAN_MODE = 'production';
     const client = DestinationService.getEWMClient();
     assert.strictEqual(client.mode, 'production');
     assert.strictEqual(client.destinationName, 'SAP_EWM_DESTINATION');
     process.env.ONE_SCAN_MODE = 'mock';
+  });
+
+  await test('DestinationService: testConnectivity returns rich diagnostics in mock mode', async () => {
+    process.env.ONE_SCAN_MODE = 'mock';
+    const diag = await DestinationService.testConnectivity();
+    assert.strictEqual(diag.mode, 'mock');
+    assert.strictEqual(diag.status, 'Connected');
+    assert.ok(diag.csrfStatus);
+    assert.ok(diag.details);
   });
 
   // 3. MockEWMAdapter Core Functions
@@ -126,9 +160,10 @@ async function runTests() {
     assert.ok(status.ewmStatus);
   });
 
-  // 4. SAPEWMAdapter Tests (Production Mode Router)
+  // 4. SAPEWMAdapter Tests (Production & Direct Mode Router)
   await test('Production Mode: getOpenWarehouseTasks returns SAP payload structure', async () => {
     process.env.ONE_SCAN_MODE = 'production';
+    process.env.SAP_EWM_FALLBACK_SIMULATION = 'true';
     const tasks = await EWMConnectorService.getOpenWarehouseTasks();
     assert.ok(Array.isArray(tasks));
     assert.strictEqual(tasks[0].taskNumber, 'WT2001');
@@ -148,7 +183,37 @@ async function runTests() {
     const mapped = SAPEWMAdapter.mapSapWarehouseTaskToContract(sapTask);
     assert.strictEqual(mapped.taskNumber, 'WT8888');
     assert.strictEqual(mapped.material, 'MAT-8888');
+    assert.strictEqual(mapped.sourceBin, 'BIN-88');
+    assert.strictEqual(mapped.destinationBin, 'BIN-99');
+    assert.strictEqual(mapped.handlingUnit, 'HU-88');
+    assert.strictEqual(mapped.serialNumber, 'SER-88');
     assert.strictEqual(mapped.status, 'Confirmed');
+  });
+
+  await test('Production Mode: mapSapWarehouseTaskToContract maps SAP ABAP field abbreviations', () => {
+    const abapTask = {
+      TANUM: 'WT9999',
+      MATNR: 'MAT-9999',
+      VLPLA: 'BIN-SRC-01',
+      NLPLA: 'BIN-DST-01',
+      VLENR: 'HU-9999',
+      SERNR: 'SER-9999',
+      TAPOS: 'O'
+    };
+    const mapped = SAPEWMAdapter.mapSapWarehouseTaskToContract(abapTask);
+    assert.strictEqual(mapped.taskNumber, 'WT9999');
+    assert.strictEqual(mapped.material, 'MAT-9999');
+    assert.strictEqual(mapped.sourceBin, 'BIN-SRC-01');
+    assert.strictEqual(mapped.destinationBin, 'BIN-DST-01');
+    assert.strictEqual(mapped.status, 'Open');
+  });
+
+  await test('Production Mode: confirmWarehouseTask simulation handling', async () => {
+    process.env.ONE_SCAN_MODE = 'production';
+    process.env.SAP_EWM_FALLBACK_SIMULATION = 'true';
+    const res = await SAPEWMAdapter.confirmWarehouseTask('WT2001');
+    assert.strictEqual(res.success, true);
+    process.env.ONE_SCAN_MODE = 'mock';
   });
 
   console.log(`\n==================================================`);

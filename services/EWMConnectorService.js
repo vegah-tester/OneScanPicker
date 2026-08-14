@@ -7,8 +7,8 @@ const logger = createLogger('EWMConnectorService');
 
 function getAdapter() {
   const mode = getMode();
-  if (mode === 'production') {
-    logger.info('[EWMConnectorService] Using SAPEWMAdapter for production requests');
+  if (mode === 'production' || mode === 'direct') {
+    logger.info(`[EWMConnectorService] Using SAPEWMAdapter for ${mode} requests`);
     return SAPEWMAdapter;
   }
   logger.info('[EWMConnectorService] Using MockEWMAdapter for mock requests');
@@ -42,7 +42,7 @@ async function getConnectionStatus() {
 function sendToEwm(operation, payload) {
   const mode = getMode();
   logger.info(`EWMConnector legacy sendToEwm operation: ${operation} (mode: ${mode})`);
-  if (mode === 'production') {
+  if (mode === 'production' || mode === 'direct') {
     return SAPEWMAdapter.confirmWarehouseTask(payload ? payload.taskNumber : '');
   }
   return MockEWMAdapter.confirmWarehouseTask(payload ? payload.taskNumber : '');
@@ -57,4 +57,3 @@ module.exports = {
   getConnectionStatus,
   sendToEwm
 };
-
