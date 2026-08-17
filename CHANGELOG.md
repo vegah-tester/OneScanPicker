@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0 - Milestone: SAP Integration & Landscape Readiness (2026-08-17)
+- **SAP Environment Specification Runbook**: Authored `docs/integration/SAP-System-Information-Required.md` defining all non-secret architectural parameters required from the SAP ECC/EWM environment (Host, Port, Mandant, Service Name, Warehouse Number, Technical User, Cloud Connector mapping).
+- **SAP-Side Configuration Checklist**: Created `docs/integration/SAP-Environment-Setup-Checklist.md` detailing exact SAP-side prerequisites across SAP Gateway (`/IWFND/MAINT_SERVICE`), `SICF` node activation, authorization profiles (`S_SERVICE`, `S_RFC`, `/SCWM/WT`), master data, and Cloud Connector pairing.
+- **Enhanced Connection Diagnostic Utility**: Updated `scripts/test-sap-connection.js` to be configuration-driven and explicitly report `PASS`, `FAIL`, and `NOT CONFIGURED` across DNS host lookup, HTTP reachability, CSRF token negotiation, and task querying.
+- **Integration Readiness Milestone Report**: Created `docs/milestones/Milestone-SAP-Integration-Readiness.md` formally categorizing components as `IMPLEMENTED LOCALLY`, `READY FOR SAP CONFIGURATION`, `REQUIRES SAP INFORMATION`, and `NOT TESTED`.
+
 ## 0.5.0 - Milestone UI/UX: SAP Fiori Horizon Redesign & Navigation Stabilization (2026-08-17)
 - **SAP Fiori Horizon Design System**: Upgraded theme from High Contrast Black (`sap_hcb`) to modern SAP Fiori Horizon (`sap_horizon`), custom stylesheet (`css/style.css`), balanced typography, and responsive spacing tokens.
 - **Enterprise Application Shell (`App.view.xml` & `App.controller.js`)**: Polished `ToolHeader` with system status indicators, active mode badges, application avatar, about/help dialog, and synchronized `SideNavigation` with deep route matching.

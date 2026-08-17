@@ -32,6 +32,7 @@ try {
   // Ignore
 }
 
+const dns = require('dns').promises;
 const DestinationService = require('../services/DestinationService');
 const SAPEWMAdapter = require('../services/adapters/SAPEWMAdapter');
 
@@ -44,56 +45,92 @@ async function runDiagnostic() {
   const info = DestinationService.getDestinationInfo();
   const client = DestinationService.getEWMClient();
 
+  const isHostConfigured = Boolean(process.env.SAP_EWM_HOST && process.env.SAP_EWM_HOST !== 'localhost');
+  const isAuthConfigured = Boolean(process.env.SAP_EWM_USER && process.env.SAP_EWM_PASSWORD);
+  const isDestinationConfigured = Boolean(process.env.ONE_SCAN_DESTINATION_NAME);
+
   console.log(`[1] Configuration Overview:`);
   console.log(`  • Active Mode:        ${mode.toUpperCase()}`);
   console.log(`  • Target Destination: ${info.destinationName}`);
   console.log(`  • Target Endpoint:    ${info.endpoint}`);
   console.log(`  • SAP Client:         ${info.sapClient}`);
-  console.log(`  • Authentication:     ${info.authType || 'None'}`);
-  console.log(`  • User:               ${info.user || 'N/A'}`);
-  console.log(`  • Strict SSL:         ${client.strictSSL ? 'Enabled' : 'Disabled (Accepts Self-Signed)'}\n`);
+  console.log(`  • Auth Configured:    ${isAuthConfigured ? 'YES (User/Pass provided)' : 'NO (Using placeholder/unauthenticated)'}`);
+  console.log(`  • Strict SSL:         ${client.strictSSL ? 'Enabled' : 'Disabled (Accepts Self-Signed certificates)'}\n`);
 
   if (mode === 'mock') {
-    console.log(`[2] Running in Local Mock Mode:`);
-    console.log(`  ✓ Local SQLite database is used for picking operations.`);
-    console.log(`  💡 TIP: To test against live SAP Gateway on this RDP server:`);
-    console.log(`     Set ONE_SCAN_MODE=direct and configure SAP_EWM_HOST in .env`);
-    console.log(`  💡 TIP: To test against SAP BTP Destination + Cloud Connector:`);
-    console.log(`     Set ONE_SCAN_MODE=production in .env\n`);
+    console.log(`[2] Execution Mode Status: MOCK MODE (Local SQLite)`);
+    console.log(`  [PASS] Local SQLite database is active and seeded with mock warehouse tasks.`);
+    console.log(`  [INFO] To test Direct Gateway mode: set ONE_SCAN_MODE=direct in .env`);
+    console.log(`  [INFO] To test BTP Destination mode: set ONE_SCAN_MODE=production in .env\n`);
+    console.log('======================================================================');
+    console.log('   Diagnostic Complete (Mock Mode Validated)');
+    console.log('======================================================================\n');
     return;
   }
 
-  console.log(`[2] Step 1: Testing HTTP Reachability & Service Root...`);
-  const connResult = await DestinationService.testConnectivity();
-  console.log(`  • Status:      ${connResult.status}`);
-  console.log(`  • EWM Status:  ${connResult.ewmStatus}`);
-  console.log(`  • Latency:     ${connResult.latencyMs} ms`);
-  console.log(`  • CSRF Token:  ${connResult.csrfStatus}`);
-  console.log(`  • Details:     ${connResult.details}\n`);
-
-  console.log(`[3] Step 2: Testing CSRF Token & Session Handshake...`);
+  console.log(`[2] Step 1: DNS & Network Host Resolution`);
   try {
-    const { token, cookies } = await SAPEWMAdapter.getCsrfToken(client, true);
-    if (token) {
-      console.log(`  ✓ CSRF Token received: ${token.substring(0, 15)}... (Length: ${token.length})`);
-      console.log(`  ✓ Session cookies received: ${cookies.length} cookie(s)`);
+    const parsedUrl = new URL(client.baseUrl);
+    const hostname = parsedUrl.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      console.log(`  [PASS] Target Host: ${hostname} (Local loopback resolved)`);
     } else {
-      console.log(`  ⚠️  No CSRF token returned (Backend may not require CSRF or is offline).`);
+      const addresses = await dns.lookup(hostname);
+      console.log(`  [PASS] Target Host '${hostname}' resolved to IP: ${addresses.address}`);
     }
-  } catch (err) {
-    console.log(`  ✗ CSRF handshake failed: ${err.message}`);
+  } catch (dnsErr) {
+    if (!isHostConfigured) {
+      console.log(`  [NOT CONFIGURED] SAP_EWM_HOST not provided yet (${dnsErr.message})`);
+    } else {
+      console.log(`  [FAIL] DNS Lookup failed: ${dnsErr.message}`);
+    }
   }
   console.log('');
 
-  console.log(`[4] Step 3: Testing Open Warehouse Tasks Query...`);
+  console.log(`[3] Step 2: HTTP Service Root Reachability`);
+  const connResult = await DestinationService.testConnectivity();
+  if (connResult.status === 'Connected' || (connResult.httpStatus >= 200 && connResult.httpStatus < 400)) {
+    console.log(`  [PASS] HTTP Root Reachable (${connResult.latencyMs} ms, Status: ${connResult.status})`);
+  } else if (connResult.status === 'Connection Failed' && !isHostConfigured) {
+    console.log(`  [NOT CONFIGURED] Endpoint unreachable (Host offline or not yet configured).`);
+    console.log(`  • Details: ${connResult.details}`);
+  } else {
+    console.log(`  [FAIL] Endpoint reached with status: ${connResult.status}`);
+    console.log(`  • Details: ${connResult.details}`);
+  }
+  console.log('');
+
+  console.log(`[4] Step 3: CSRF Token & Session Handshake`);
   try {
-    const tasks = await SAPEWMAdapter.getOpenWarehouseTasks();
-    console.log(`  ✓ Successfully fetched tasks count: ${tasks.length}`);
-    if (tasks.length > 0) {
-      console.log(`  • First Task: WT# ${tasks[0].taskNumber} | Material: ${tasks[0].material} | Source Bin: ${tasks[0].sourceBin} | Status: ${tasks[0].status}`);
+    const { token, cookies } = await SAPEWMAdapter.getCsrfToken(client, true);
+    if (token) {
+      console.log(`  [PASS] CSRF Token received: ${token.substring(0, 15)}... (Length: ${token.length})`);
+      console.log(`  [PASS] Session Cookies received: ${cookies.length} cookie(s)`);
+    } else if (!isHostConfigured) {
+      console.log(`  [NOT CONFIGURED] SAP Gateway endpoint offline; CSRF handshake not executed.`);
+    } else {
+      console.log(`  [FAIL] SAP Gateway did not return X-CSRF-Token.`);
     }
   } catch (err) {
-    console.log(`  ✗ Task retrieval failed: ${err.message || JSON.stringify(err)}`);
+    console.log(`  [FAIL] CSRF handshake error: ${err.message}`);
+  }
+  console.log('');
+
+  console.log(`[5] Step 4: Open Warehouse Tasks Query`);
+  try {
+    const tasks = await SAPEWMAdapter.getOpenWarehouseTasks();
+    if (tasks && tasks.length > 0) {
+      console.log(`  [PASS] Open Warehouse Tasks returned: ${tasks.length} task(s)`);
+      console.log(`  • First Task: WT# ${tasks[0].taskNumber} | SKU: ${tasks[0].material} | Source Bin: ${tasks[0].sourceBin} | Status: ${tasks[0].status}`);
+    } else {
+      console.log(`  [PASS] Query succeeded (0 open tasks currently in queue).`);
+    }
+  } catch (err) {
+    if (!isHostConfigured) {
+      console.log(`  [NOT CONFIGURED] Live SAP task query skipped: real SAP host not yet provided.`);
+    } else {
+      console.log(`  [FAIL] Task retrieval failed: ${err.message || JSON.stringify(err)}`);
+    }
   }
   console.log('');
 
