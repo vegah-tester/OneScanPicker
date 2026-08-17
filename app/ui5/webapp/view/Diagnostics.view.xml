@@ -2,82 +2,134 @@
   xmlns:mvc="sap.ui.core.mvc"
   xmlns="sap.m"
   xmlns:f="sap.ui.layout.form"
+  xmlns:l="sap.ui.layout"
   controllerName="onescanpicker.ui5.controller.Diagnostics">
-  <Page title="System Diagnostics" class="sapUiResponsivePadding--content">
+  <Page
+    id="diagnosticsPage"
+    title="System Diagnostics"
+    showNavButton="false"
+    class="sapUiResponsivePadding--content">
     <headerContent>
-      <Button icon="sap-icon://sys-monitor" text="Run Diagnostic Ping" type="Emphasized" press=".onRunDiagnostic" />
+      <Button
+        id="runDiagnosticButton"
+        icon="sap-icon://sys-monitor"
+        text="Run Diagnostic Ping"
+        type="Emphasized"
+        tooltip="Execute real-time health check and measure latency"
+        press=".onRunDiagnostic" />
     </headerContent>
     <content>
-      <VBox class="sapUiSmallMargin">
-        <Panel headerText="Backend, Destination &amp; EWM Health" class="sapUiSmallMarginBottom">
-          <content>
-            <f:SimpleForm editable="false" layout="ColumnLayout">
-              <f:content>
-                <Label text="Runtime Mode" />
-                <ObjectStatus text="{diag>/mode}" state="{= ${diag>/mode} === 'mock' ? 'Information' : 'Success' }" />
+      <VBox class="sapUiSmallMargin" renderType="Bare">
+        <!-- Runtime Mode Notice Banner -->
+        <MessageStrip
+          id="modeNoticeStrip"
+          text="{= ${diag>/mode} === 'mock' ? 'MOCK MODE ACTIVE: Operating against local SQLite persistence layer. To test live SAP Gateway connectivity, configure ONE_SCAN_MODE=direct or production.' : 'LIVE INTEGRATION MODE ACTIVE: Operating against configured SAP Gateway / BTP Destination endpoint.' }"
+          type="{= ${diag>/mode} === 'mock' ? 'Information' : 'Success' }"
+          showIcon="true"
+          class="sapUiSmallMarginBottom" />
 
-                <Label text="CAP Backend Status" />
-                <ObjectStatus text="{diag>/status}" state="{= ${diag>/status} === 'Connected' ? 'Success' : 'Error' }" />
+        <!-- Two-Column Grid: Connectivity Metrics & Architecture Layer Checklist -->
+        <l:Grid
+          defaultSpan="XL6 L6 M12 S12"
+          class="sapUiNoContentPadding"
+          hSpacing="1"
+          vSpacing="1">
+          <!-- Backend & EWM Health Form -->
+          <Panel
+            headerText="Backend, Destination &amp; EWM Health"
+            class="fioriPanelCard">
+            <content>
+              <f:SimpleForm
+                editable="false"
+                layout="ResponsiveGridLayout"
+                labelSpanXL="4"
+                labelSpanL="4"
+                labelSpanM="4"
+                labelSpanS="12">
+                <f:content>
+                  <Label text="Runtime Mode" />
+                  <ObjectStatus
+                    text="{= ${diag>/mode}.toUpperCase() }"
+                    state="{= ${diag>/mode} === 'mock' ? 'Information' : 'Success' }" />
 
-                <Label text="SAP EWM Adapter Status" />
-                <ObjectStatus text="{diag>/ewmStatus}" state="Success" />
+                  <Label text="Connection Status" />
+                  <ObjectStatus
+                    text="{diag>/status}"
+                    state="{= ${diag>/status} === 'Connected' ? 'Success' : 'Error' }"
+                    icon="{= ${diag>/status} === 'Connected' ? 'sap-icon://connected' : 'sap-icon://disconnected' }" />
 
-                <Label text="BTP Destination Status" />
-                <ObjectStatus text="{diag>/destinationStatus}" state="{= ${diag>/mode} === 'mock' ? 'None' : 'Success' }" />
+                  <Label text="Roundtrip Latency" />
+                  <ObjectStatus
+                    text="{diag>/latencyMs} ms"
+                    icon="sap-icon://speed"
+                    state="{= ${diag>/latencyMs} &lt; 50 ? 'Success' : (${diag>/latencyMs} &lt; 200 ? 'Warning' : 'Error') }" />
 
-                <Label text="CSRF Handshake Status" />
-                <ObjectStatus text="{diag>/csrfStatus}" state="{= ${diag>/csrfStatus} === 'Available' || ${diag>/csrfStatus} === 'N/A (Mock Mode)' ? 'Success' : 'Warning' }" />
+                  <Label text="SAP EWM Adapter" />
+                  <ObjectStatus
+                    text="{diag>/ewmStatus}"
+                    state="{= ${diag>/status} === 'Connected' ? 'Success' : 'Warning' }" />
 
-                <Label text="Active Destination Name" />
-                <Text text="{diag>/destinationName}" />
+                  <Label text="BTP Destination" />
+                  <ObjectStatus
+                    text="{diag>/destinationStatus}"
+                    state="{= ${diag>/mode} === 'mock' ? 'None' : 'Success' }" />
 
-                <Label text="Active Endpoint" />
-                <Text text="{diag>/endpoint}" />
+                  <Label text="CSRF Token Handshake" />
+                  <ObjectStatus
+                    text="{diag>/csrfStatus}"
+                    state="{= ${diag>/csrfStatus} === 'Available' || ${diag>/csrfStatus} === 'N/A (Mock Mode)' ? 'Success' : 'Warning' }" />
 
-                <Label text="Measured Latency" />
-                <Text text="{diag>/latencyMs} ms" />
+                  <Label text="Active Destination Name" />
+                  <Text text="{diag>/destinationName}" />
 
-                <Label text="Last Checked" />
-                <Text text="{diag>/lastCheck}" />
+                  <Label text="Active Target Endpoint" />
+                  <Text text="{diag>/endpoint}" />
 
-                <Label text="Diagnostics Details" />
-                <Text text="{diag>/details}" />
-              </f:content>
-            </f:SimpleForm>
-          </content>
-        </Panel>
+                  <Label text="Last Checked" />
+                  <Text text="{diag>/lastCheck}" />
 
-        <Panel headerText="Enterprise Architecture Layer Readiness">
-          <content>
-            <List>
-              <StandardListItem
-                title="CAP Backend (Node.js)"
-                description="Serving OData V4 services on port 4004"
-                icon="sap-icon://accept"
-                iconColor="Positive" />
-              <StandardListItem
-                title="SQLite Local Persistence"
-                description="Database db.sqlite seeded with initial tasks &amp; scan records"
-                icon="sap-icon://accept"
-                iconColor="Positive" />
-              <StandardListItem
-                title="UI5 Middleware Proxy"
-                description="Forwarding /odata/v4/one-scan-picker to local CAP instance"
-                icon="sap-icon://accept"
-                iconColor="Positive" />
-              <StandardListItem
-                title="DestinationService &amp; Cloud Connector Engine"
-                description="Ready for BTP Destination Service, Cloud Connector, or Direct Gateway line"
-                icon="sap-icon://accept"
-                iconColor="Positive" />
-              <StandardListItem
-                title="EWMConnectorService &amp; SAPEWMAdapter"
-                description="Decoupled integration service with CSRF session management &amp; SAP error handling"
-                icon="sap-icon://accept"
-                iconColor="Positive" />
-            </List>
-          </content>
-        </Panel>
+                  <Label text="Diagnostic Details" />
+                  <Text text="{diag>/details}" />
+                </f:content>
+              </f:SimpleForm>
+            </content>
+          </Panel>
+
+          <!-- Architecture Readiness Checklist -->
+          <Panel
+            headerText="Enterprise Architecture Layer Readiness"
+            class="fioriPanelCard">
+            <content>
+              <List>
+                <StandardListItem
+                  title="CAP Backend Server (Node.js)"
+                  description="Serving OData V4 services on port 4004 (/odata/v4/one-scan-picker)"
+                  icon="sap-icon://accept"
+                  iconColor="Positive" />
+                <StandardListItem
+                  title="Local SQLite Persistence"
+                  description="Database db.sqlite seeded with WarehouseTasks &amp; ScanRecords"
+                  icon="sap-icon://accept"
+                  iconColor="Positive" />
+                <StandardListItem
+                  title="UI5 Middleware Proxy"
+                  description="Reverse proxy forwarding /odata/v4/one-scan-picker to local CAP"
+                  icon="sap-icon://accept"
+                  iconColor="Positive" />
+                <StandardListItem
+                  title="DestinationService &amp; Cloud Connector"
+                  description="Supports mock, direct on-premise gateway, and BTP Destination modes"
+                  icon="sap-icon://accept"
+                  iconColor="Positive" />
+                <StandardListItem
+                  title="EWMConnectorService &amp; SAPEWMAdapter"
+                  description="Decoupled integration with CSRF session cookies &amp; ABAP normalization"
+                  icon="sap-icon://accept"
+                  iconColor="Positive" />
+              </List>
+            </content>
+          </Panel>
+        </l:Grid>
       </VBox>
     </content>
   </Page>

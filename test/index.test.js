@@ -142,6 +142,13 @@ async function runTests() {
 
   await test('Mock Mode: confirmWarehouseTask valid task confirmation', async () => {
     process.env.ONE_SCAN_MODE = 'mock';
+    try {
+      const cds = require('@sap/cds');
+      const db = await cds.connect.to('db');
+      await db.run(cds.ql.UPDATE('onescanpicker.db.WarehouseTasks').set({ status: 'Open' }).where({ taskNumber: 'WT1003' }));
+    } catch (e) {
+      // Ignored if db not connected yet
+    }
     const res = await EWMConnectorService.confirmWarehouseTask('WT1003');
     assert.strictEqual(res.success, true);
   });

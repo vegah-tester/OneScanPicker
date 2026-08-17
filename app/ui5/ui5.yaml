@@ -9,6 +9,7 @@ framework:
     - name: sap.m
     - name: sap.f
     - name: sap.ui.core
+    - name: sap.ui.layout
     - name: sap.tnt
 resources:
   configuration:
@@ -20,4 +21,4 @@ server:
       afterMiddleware: compression
       mountPath: /odata/v4/one-scan-picker
       configuration:
-        baseUri: http://localhost:4004/odata/v4/one-scan-picker
+        baseUri: http://localhost:4004/odata/v4/one-scan-picker

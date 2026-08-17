@@ -10,21 +10,45 @@
           id="sideNavigationToggleButton"
           icon="sap-icon://menu2"
           type="Transparent"
+          tooltip="Toggle Navigation Menu"
           press=".onSideNavButtonPress" />
-        <Title text="OneScan Intelligent Picking &amp; Verification" level="H2" class="sapUiSmallMarginBegin" />
+        <Avatar
+          src="sap-icon://inventory"
+          displaySize="XS"
+          backgroundColor="Accent6"
+          class="sapUiTinyMarginBegin" />
+        <Title
+          text="OneScan Intelligent Picking &amp; Verification"
+          level="H2"
+          class="sapUiSmallMarginBegin oneScanHeaderTitle" />
         <ToolbarSpacer />
-        <ObjectStatus text="{dashboard>/connectionStatus}" state="Success" class="sapUiSmallMarginEnd" />
-        <Button icon="sap-icon://sys-help" type="Transparent" press=".onHelpPress" />
+        <ObjectStatus
+          title="Mode"
+          text="{= ${dashboard>/mode}.toUpperCase() }"
+          state="{= ${dashboard>/mode} === 'mock' ? 'Information' : 'Success' }"
+          icon="sap-icon://wrench"
+          class="sapUiSmallMarginEnd" />
+        <ObjectStatus
+          title="Status"
+          text="{dashboard>/connectionStatus}"
+          state="{= ${dashboard>/connectionStatus} === 'Connected' ? 'Success' : 'Error' }"
+          icon="{= ${dashboard>/connectionStatus} === 'Connected' ? 'sap-icon://connected' : 'sap-icon://disconnected' }"
+          class="sapUiSmallMarginEnd" />
+        <Button
+          icon="sap-icon://sys-help"
+          type="Transparent"
+          tooltip="Application Information &amp; Architecture"
+          press=".onHelpPress" />
       </tnt:ToolHeader>
     </tnt:header>
     <tnt:sideContent>
       <tnt:SideNavigation id="sideNavigation" itemSelect=".onItemSelect">
         <tnt:NavigationList id="navigationList" selectedKey="{appState>/selectedRoute}">
-          <tnt:NavigationListItem text="Dashboard" key="dashboard" icon="sap-icon://dashboard" />
-          <tnt:NavigationListItem text="Warehouse Tasks" key="taskList" icon="sap-icon://task" />
-          <tnt:NavigationListItem text="Scan &amp; Verify" key="scan" icon="sap-icon://bar-code" />
-          <tnt:NavigationListItem text="Pick History" key="history" icon="sap-icon://history" />
-          <tnt:NavigationListItem text="Diagnostics" key="diagnostics" icon="sap-icon://sys-monitor" />
+          <tnt:NavigationListItem text="Dashboard" key="dashboard" icon="sap-icon://dashboard" tooltip="Warehouse operational metrics" />
+          <tnt:NavigationListItem text="Warehouse Tasks" key="taskList" icon="sap-icon://task" tooltip="View and filter open warehouse tasks" />
+          <tnt:NavigationListItem text="Scan &amp; Verify" key="scan" icon="sap-icon://bar-code" tooltip="Scan barcode and verify 1-Scan pick" />
+          <tnt:NavigationListItem text="Pick History" key="history" icon="sap-icon://history" tooltip="Audit log of completed picks" />
+          <tnt:NavigationListItem text="Diagnostics" key="diagnostics" icon="sap-icon://sys-monitor" tooltip="System and SAP Gateway connectivity diagnostics" />
         </tnt:NavigationList>
       </tnt:SideNavigation>
     </tnt:sideContent>
@@ -32,4 +56,4 @@
       <App id="appContainer" />
     </tnt:mainContents>
   </tnt:ToolPage>
-</mvc:View>
+</mvc:View>

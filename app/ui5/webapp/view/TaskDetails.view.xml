@@ -2,23 +2,37 @@
   xmlns:mvc="sap.ui.core.mvc"
   xmlns="sap.m"
   xmlns:f="sap.ui.layout.form"
+  xmlns:l="sap.ui.layout"
   controllerName="onescanpicker.ui5.controller.TaskDetails">
   <Page
+    id="taskDetailsPage"
     title="Warehouse Task Details"
     showNavButton="true"
     navButtonPress=".onNavBack"
     class="sapUiResponsivePadding--content">
+    <headerContent>
+      <Button
+        icon="sap-icon://refresh"
+        text="Refresh"
+        tooltip="Reload task details"
+        press=".onRefresh" />
+    </headerContent>
     <content>
-      <VBox class="sapUiSmallMargin">
+      <VBox class="sapUiSmallMargin" renderType="Bare">
+        <!-- Object Header -->
         <ObjectHeader
+          id="taskObjectHeader"
           title="{detail>/taskNumber}"
           number="{detail>/material}"
-          numberUnit="Material"
-          intro="Warehouse Pick Task">
+          numberUnit="SKU"
+          intro="SAP EWM Warehouse Pick Task"
+          class="sapUiSmallMarginBottom">
           <statuses>
             <ObjectStatus
+              title="Status"
               text="{detail>/status}"
-              state="{= ${detail>/status} === 'Open' ? 'Information' : (${detail>/status} === 'Confirmed' ? 'Success' : 'Error') }" />
+              state="{= ${detail>/status} === 'Open' ? 'Information' : (${detail>/status} === 'Confirmed' ? 'Success' : 'Error') }"
+              icon="{= ${detail>/status} === 'Open' ? 'sap-icon://in-progress' : (${detail>/status} === 'Confirmed' ? 'sap-icon://accept' : 'sap-icon://error') }" />
           </statuses>
           <attributes>
             <ObjectAttribute title="Handling Unit" text="{detail>/handlingUnit}" />
@@ -26,48 +40,137 @@
           </attributes>
         </ObjectHeader>
 
-        <Panel headerText="Pick Locations &amp; Parameters" class="sapUiSmallMarginTop">
-          <f:SimpleForm editable="false" layout="ColumnLayout">
-            <f:content>
-              <Label text="Source Bin" />
-              <Text text="{detail>/sourceBin}" />
+        <!-- Two-Column Grid for Parameters and Steps -->
+        <l:Grid
+          defaultSpan="XL6 L6 M12 S12"
+          class="sapUiNoContentPadding"
+          hSpacing="1"
+          vSpacing="1">
+          <!-- Pick Parameters Panel -->
+          <Panel
+            headerText="Storage Locations &amp; Material Parameters"
+            class="fioriPanelCard">
+            <content>
+              <f:SimpleForm
+                editable="false"
+                layout="ResponsiveGridLayout"
+                labelSpanXL="4"
+                labelSpanL="4"
+                labelSpanM="4"
+                labelSpanS="12">
+                <f:content>
+                  <Label text="Source Storage Bin" />
+                  <ObjectStatus
+                    text="{detail>/sourceBin}"
+                    icon="sap-icon://functional-location"
+                    state="None" />
 
-              <Label text="Destination Bin" />
-              <Text text="{detail>/destinationBin}" />
+                  <Label text="Destination Storage Bin" />
+                  <ObjectStatus
+                    text="{detail>/destinationBin}"
+                    icon="sap-icon://target-group"
+                    state="None" />
 
-              <Label text="Material SKU" />
-              <Text text="{detail>/material}" />
+                  <Label text="Material SKU" />
+                  <Text text="{detail>/material}" />
 
-              <Label text="Handling Unit ID" />
-              <Text text="{detail>/handlingUnit}" />
+                  <Label text="Target Handling Unit (HU)" />
+                  <Text text="{detail>/handlingUnit}" />
 
-              <Label text="Serial Number" />
-              <Text text="{detail>/serialNumber}" />
+                  <Label text="Equipment Serial Number" />
+                  <Text text="{detail>/serialNumber}" />
 
-              <Label text="Task Status" />
-              <Text text="{detail>/status}" />
-            </f:content>
-          </f:SimpleForm>
-        </Panel>
+                  <Label text="Task Quantity" />
+                  <Text text="1.000 EA" />
 
-        <Panel headerText="Step-by-Step Verification Protocol" class="sapUiSmallMarginTop">
-          <content>
-            <VBox class="sapUiSmallMargin">
-              <Text text="1. Navigate to Source Bin: {detail>/sourceBin}" class="sapUiTinyMarginBottom" />
-              <Text text="2. Locate Material: {detail>/material} with HU: {detail>/handlingUnit}" class="sapUiTinyMarginBottom" />
-              <Text text="3. Scan 2D Barcode/QR string to verify bin and serial alignment." class="sapUiTinyMarginBottom" />
-              <Text text="4. Confirm transfer to Destination Bin: {detail>/destinationBin}" />
-            </VBox>
-          </content>
-        </Panel>
+                  <Label text="Lifecycle Status" />
+                  <ObjectStatus
+                    text="{detail>/status}"
+                    state="{= ${detail>/status} === 'Open' ? 'Information' : (${detail>/status} === 'Confirmed' ? 'Success' : 'Error') }" />
+                </f:content>
+              </f:SimpleForm>
+            </content>
+          </Panel>
+
+          <!-- Step-by-Step Guide Panel -->
+          <Panel
+            headerText="Step-by-Step Picking Protocol"
+            class="fioriPanelCard">
+            <content>
+              <VBox class="sapUiSmallMargin">
+                <HBox class="sapUiSmallMarginBottom" alignItems="Center">
+                  <Avatar
+                    initials="1"
+                    displaySize="XS"
+                    backgroundColor="Accent6"
+                    class="sapUiSmallMarginEnd" />
+                  <VBox>
+                    <Text text="Navigate to Source Bin" class="sapUiTinyMarginBottom" />
+                    <ObjectStatus text="{detail>/sourceBin}" state="Information" />
+                  </VBox>
+                </HBox>
+
+                <HBox class="sapUiSmallMarginBottom" alignItems="Center">
+                  <Avatar
+                    initials="2"
+                    displaySize="XS"
+                    backgroundColor="Accent6"
+                    class="sapUiSmallMarginEnd" />
+                  <VBox>
+                    <Text text="Verify Physical Material &amp; Handling Unit" class="sapUiTinyMarginBottom" />
+                    <Text text="{detail>/material} | HU: {detail>/handlingUnit}" />
+                  </VBox>
+                </HBox>
+
+                <HBox class="sapUiSmallMarginBottom" alignItems="Center">
+                  <Avatar
+                    initials="3"
+                    displaySize="XS"
+                    backgroundColor="Accent6"
+                    class="sapUiSmallMarginEnd" />
+                  <VBox>
+                    <Text text="Perform 1-Scan 2D Barcode Verification" class="sapUiTinyMarginBottom" />
+                    <Text text="Format: BIN|MATERIAL|SERIAL|HU" />
+                  </VBox>
+                </HBox>
+
+                <HBox alignItems="Center">
+                  <Avatar
+                    initials="4"
+                    displaySize="XS"
+                    backgroundColor="Accent6"
+                    class="sapUiSmallMarginEnd" />
+                  <VBox>
+                    <Text text="Confirm Transfer to Destination Bin" class="sapUiTinyMarginBottom" />
+                    <ObjectStatus text="{detail>/destinationBin}" state="Success" />
+                  </VBox>
+                </HBox>
+              </VBox>
+            </content>
+          </Panel>
+        </l:Grid>
       </VBox>
     </content>
     <footer>
       <OverflowToolbar>
+        <Button
+          text="Back to Task List"
+          icon="sap-icon://nav-back"
+          press=".onNavBack" />
         <ToolbarSpacer />
-        <Button text="Proceed to Scan &amp; Verify" icon="sap-icon://bar-code" type="Emphasized" press=".onGoToScan" />
-        <Button text="Direct Confirm Task" icon="sap-icon://accept" press=".onConfirmTask" />
+        <Button
+          text="Proceed to Scan &amp; Verify"
+          icon="sap-icon://bar-code"
+          type="Emphasized"
+          press=".onGoToScan" />
+        <Button
+          text="Direct Confirm Task"
+          icon="sap-icon://accept"
+          type="Success"
+          enabled="{= ${detail>/status} === 'Open' }"
+          tooltip="{= ${detail>/status} === 'Open' ? 'Confirm task directly' : 'Task is already confirmed or closed' }"
+          press=".onConfirmTask" />
       </OverflowToolbar>
     </footer>
   </Page>
-</mvc:View>
+</mvc:View>

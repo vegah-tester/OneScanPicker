@@ -10,6 +10,9 @@
   "requires": {
     "db": {
       "kind": "sqlite"
+    },
+    "auth": {
+      "kind": "dummy"
     }
   }
 }

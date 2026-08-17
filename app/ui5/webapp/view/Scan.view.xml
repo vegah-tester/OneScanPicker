@@ -2,112 +2,190 @@
   xmlns:mvc="sap.ui.core.mvc"
   xmlns="sap.m"
   xmlns:f="sap.ui.layout.form"
+  xmlns:l="sap.ui.layout"
   controllerName="onescanpicker.ui5.controller.Scan">
-  <Page title="Scan &amp; Verification" class="sapUiResponsivePadding--content">
+  <Page
+    id="scanPage"
+    title="Scan &amp; Verify"
+    showNavButton="false"
+    class="sapUiResponsivePadding--content">
     <headerContent>
-      <Button icon="sap-icon://task" text="Task List" press=".onGoToTasks" />
+      <Button
+        icon="sap-icon://task"
+        text="Change Active Task"
+        tooltip="Select a different open task from the list"
+        press=".onSelectTask" />
     </headerContent>
     <content>
-      <VBox class="sapUiSmallMargin">
-        <Panel headerText="Active Warehouse Task Context" expandable="true" expanded="true">
+      <VBox class="sapUiSmallMargin" renderType="Bare">
+        <!-- Active Task Banner -->
+        <Panel
+          headerText="Active Picking Task Context"
+          class="fioriPanelCard sapUiSmallMarginBottom">
           <content>
-            <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap">
-              <VBox class="sapUiSmallMarginEnd">
-                <Text text="Active Task: " class="sapUiTinyMarginBottom" />
-                <Title text="{scanState>/activeTaskNumber}" level="H3" />
+            <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="sapUiSmallMargin">
+              <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+                <Text text="Active Task" class="sapUiTinyMarginBottom" />
+                <Title text="{scanState>/activeTaskNumber}" level="H2" />
               </VBox>
-              <VBox class="sapUiSmallMarginEnd">
-                <Text text="Expected Material" />
-                <ObjectStatus text="{scanState>/expectedMaterial}" state="Information" />
+              <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+                <Text text="Expected Material" class="sapUiTinyMarginBottom" />
+                <ObjectStatus text="{scanState>/expectedMaterial}" state="Information" icon="sap-icon://product" />
               </VBox>
-              <VBox class="sapUiSmallMarginEnd">
-                <Text text="Expected Source Bin" />
-                <ObjectStatus text="{scanState>/expectedSourceBin}" state="Information" />
+              <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+                <Text text="Expected Source Bin" class="sapUiTinyMarginBottom" />
+                <ObjectStatus text="{scanState>/expectedSourceBin}" state="Information" icon="sap-icon://functional-location" />
               </VBox>
-              <VBox class="sapUiSmallMarginEnd">
-                <Text text="Expected Destination Bin" />
-                <ObjectStatus text="{scanState>/expectedDestinationBin}" state="Information" />
+              <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+                <Text text="Expected Destination" class="sapUiTinyMarginBottom" />
+                <ObjectStatus text="{scanState>/expectedDestinationBin}" state="Information" icon="sap-icon://target-group" />
               </VBox>
-              <Button text="Change Task" icon="sap-icon://edit" press=".onSelectTask" />
+              <VBox class="sapUiSmallMarginEnd sapUiTinyMarginBottom">
+                <Text text="Expected HU" class="sapUiTinyMarginBottom" />
+                <Text text="{scanState>/expectedHU}" />
+              </VBox>
+              <Button
+                text="Switch Task"
+                icon="sap-icon://switch-views"
+                press=".onSelectTask" />
             </HBox>
           </content>
         </Panel>
 
-        <Panel headerText="1D / 2D Barcode Reader Input" class="sapUiSmallMarginTop">
+        <!-- Barcode Scanner Input Card -->
+        <Panel
+          headerText="1-Scan 2D Barcode Reader"
+          class="fioriPanelCard sapUiSmallMarginBottom">
           <content>
             <VBox class="sapUiSmallMargin">
-              <Label text="Scan Barcode / QR String (Format: BIN|MATERIAL|SERIAL|HU)" required="true" />
-              <HBox class="sapUiTinyMarginBottom">
+              <Label text="Scan or Enter Complete Pick Barcode String (Format: BIN|MATERIAL|SERIAL|HU)" required="true" class="sapUiTinyMarginBottom" />
+              <HBox class="sapUiSmallMarginBottom scanInputHero">
                 <Input
                   id="scanInput"
                   value="{scanState>/scanValue}"
                   placeholder="e.g. BIN-A01|MAT-1001|SER-1001|HU-9001"
                   width="100%"
-                  submit=".onParseScan" />
-                <Button text="Parse Scan" icon="sap-icon://bar-code" type="Emphasized" press=".onParseScan" class="sapUiTinyMarginBegin" />
-                <Button text="Clear" icon="sap-icon://clear-all" press=".onClearScan" class="sapUiTinyMarginBegin" />
-              </HBox>
-
-              <Label text="Test Demo Scan Presets:" class="sapUiTinyMarginTop" />
-              <HBox wrap="Wrap">
-                <Button text="Preset WT1001" type="Transparent" press=".onApplyPreset" class="sapUiTinyMarginEnd" />
-                <Button text="Preset WT1003" type="Transparent" press=".onApplyPreset" class="sapUiTinyMarginEnd" />
-                <Button text="Preset Invalid" type="Transparent" press=".onApplyPreset" />
-              </HBox>
-            </VBox>
-          </content>
-        </Panel>
-
-        <Panel headerText="Parsed Payload Breakdown" class="sapUiSmallMarginTop">
-          <content>
-            <f:SimpleForm editable="false" layout="ColumnLayout">
-              <f:content>
-                <Label text="Parsed Bin" />
-                <Text text="{scanState>/parsedBin}" />
-
-                <Label text="Material SKU" />
-                <Text text="{scanState>/material}" />
-
-                <Label text="Serial Number" />
-                <Text text="{scanState>/serialNumber}" />
-
-                <Label text="Handling Unit ID" />
-                <Text text="{scanState>/handlingUnit}" />
-
-                <Label text="Parse Status" />
-                <ObjectStatus text="{scanState>/parseMessage}" state="{= ${scanState>/isParsed} ? 'Success' : 'None' }" />
-              </f:content>
-            </f:SimpleForm>
-          </content>
-        </Panel>
-
-        <Panel headerText="Pick Verification &amp; Task Confirmation" class="sapUiSmallMarginTop">
-          <content>
-            <VBox class="sapUiSmallMargin">
-              <MessageStrip
-                text="{scanState>/validationMessage}"
-                type="{scanState>/validationMessageType}"
-                showIcon="true"
-                class="sapUiSmallMarginBottom" />
-
-              <HBox justifyContent="Start">
+                  submit=".onParseAndValidate" />
                 <Button
-                  text="1. Validate Pick Data"
-                  icon="sap-icon://accept"
+                  text="Parse &amp; Validate"
+                  icon="sap-icon://bar-code"
                   type="Emphasized"
-                  press=".onValidatePick"
-                  class="sapUiSmallMarginEnd" />
+                  press=".onParseAndValidate"
+                  class="sapUiSmallMarginBegin" />
                 <Button
-                  text="2. Confirm Warehouse Task"
-                  icon="sap-icon://complete"
-                  type="Success"
-                  enabled="{scanState>/canConfirm}"
-                  press=".onConfirmTask" />
+                  text="Clear"
+                  icon="sap-icon://clear-all"
+                  press=".onClearScan"
+                  class="sapUiTinyMarginBegin" />
+              </HBox>
+
+              <Label text="Quick Demo Barcode Presets:" class="sapUiTinyMarginTop sapUiTinyMarginBottom" />
+              <HBox wrap="Wrap">
+                <Button
+                  text="Preset WT1001 (Valid)"
+                  icon="sap-icon://accept"
+                  type="Transparent"
+                  class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                  press=".onApplyPreset" />
+                <Button
+                  text="Preset WT1003 (Valid)"
+                  icon="sap-icon://accept"
+                  type="Transparent"
+                  class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                  press=".onApplyPreset" />
+                <Button
+                  text="Preset Discrepancy (Invalid)"
+                  icon="sap-icon://decline"
+                  type="Transparent"
+                  class="sapUiTinyMarginBottom"
+                  press=".onApplyPreset" />
               </HBox>
             </VBox>
           </content>
         </Panel>
+
+        <!-- Two-Column Grid: Decoded Data & Verification Result -->
+        <l:Grid
+          defaultSpan="XL6 L6 M12 S12"
+          class="sapUiNoContentPadding"
+          hSpacing="1"
+          vSpacing="1">
+          <!-- Decoded Data Breakdown -->
+          <Panel
+            headerText="Decoded Barcode Payload"
+            class="fioriPanelCard">
+            <content>
+              <f:SimpleForm
+                editable="false"
+                layout="ResponsiveGridLayout"
+                labelSpanXL="4"
+                labelSpanL="4"
+                labelSpanM="4"
+                labelSpanS="12">
+                <f:content>
+                  <Label text="Scanned Storage Bin" />
+                  <ObjectStatus
+                    text="{= ${scanState>/parsedBin} || '—' }"
+                    icon="{= ${scanState>/parsedBin} ? 'sap-icon://functional-location' : '' }"
+                    state="{= ${scanState>/parsedBin} === ${scanState>/expectedSourceBin} ? 'Success' : (${scanState>/parsedBin} ? 'Error' : 'None') }" />
+
+                  <Label text="Scanned Material SKU" />
+                  <ObjectStatus
+                    text="{= ${scanState>/material} || '—' }"
+                    icon="{= ${scanState>/material} ? 'sap-icon://product' : '' }"
+                    state="{= ${scanState>/material} === ${scanState>/expectedMaterial} ? 'Success' : (${scanState>/material} ? 'Error' : 'None') }" />
+
+                  <Label text="Scanned Serial Number" />
+                  <Text text="{= ${scanState>/serialNumber} || '—' }" />
+
+                  <Label text="Scanned Handling Unit" />
+                  <Text text="{= ${scanState>/handlingUnit} || '—' }" />
+
+                  <Label text="Decoder Status" />
+                  <ObjectStatus
+                    text="{scanState>/parseMessage}"
+                    state="{= ${scanState>/isParsed} ? 'Success' : 'None' }" />
+                </f:content>
+              </f:SimpleForm>
+            </content>
+          </Panel>
+
+          <!-- Verification & Confirmation Panel -->
+          <Panel
+            headerText="Pick Verification &amp; Task Confirmation"
+            class="fioriPanelCard">
+            <content>
+              <VBox class="sapUiSmallMargin">
+                <MessageStrip
+                  text="{scanState>/validationMessage}"
+                  type="{scanState>/validationMessageType}"
+                  showIcon="true"
+                  class="sapUiSmallMarginBottom" />
+
+                <Text
+                  text="Once all 4 barcode elements are validated against SAP EWM criteria, confirm the pick to complete the warehouse transfer."
+                  class="sapUiSmallMarginBottom" />
+
+                <HBox wrap="Wrap" class="sapUiSmallMarginTop">
+                  <Button
+                    text="1. Validate Pick Parameters"
+                    icon="sap-icon://accept"
+                    type="Emphasized"
+                    class="sapUiSmallMarginEnd sapUiTinyMarginBottom"
+                    press=".onValidatePick" />
+                  <Button
+                    text="2. Confirm Pick &amp; Transfer"
+                    icon="sap-icon://complete"
+                    type="Success"
+                    enabled="{scanState>/canConfirm}"
+                    class="sapUiTinyMarginBottom"
+                    press=".onConfirmTask" />
+                </HBox>
+              </VBox>
+            </content>
+          </Panel>
+        </l:Grid>
       </VBox>
     </content>
   </Page>
-</mvc:View>
+</mvc:View>

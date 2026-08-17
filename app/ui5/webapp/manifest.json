@@ -4,7 +4,7 @@
     "id": "onescanpicker.ui5",
     "type": "application",
     "title": "OneScanPicker",
-    "description": "OneScan Intelligent Picking & Verification",
+    "description": "OneScan Intelligent Picking & Verification for SAP EWM",
     "dataSources": {
       "mainService": {
         "uri": "/odata/v4/one-scan-picker/",
@@ -28,6 +28,7 @@
         "sap.m": {},
         "sap.f": {},
         "sap.ui.core": {},
+        "sap.ui.layout": {},
         "sap.tnt": {}
       }
     },
@@ -50,12 +51,20 @@
         "viewPath": "onescanpicker.ui5.view",
         "controlId": "appContainer",
         "controlAggregation": "pages",
-        "async": true
+        "async": true,
+        "bypassed": {
+          "target": "dashboard"
+        }
       },
       "routes": [
         {
           "name": "dashboard",
           "pattern": "",
+          "target": "dashboard"
+        },
+        {
+          "name": "dashboardExplicit",
+          "pattern": "dashboard",
           "target": "dashboard"
         },
         {
@@ -87,29 +96,35 @@
       "targets": {
         "dashboard": {
           "viewId": "dashboardView",
-          "viewName": "Dashboard"
+          "viewName": "Dashboard",
+          "title": "Warehouse Dashboard"
         },
         "taskList": {
           "viewId": "taskListView",
-          "viewName": "TaskList"
+          "viewName": "TaskList",
+          "title": "Warehouse Tasks"
         },
         "taskDetails": {
           "viewId": "taskDetailsView",
-          "viewName": "TaskDetails"
+          "viewName": "TaskDetails",
+          "title": "Task Details"
         },
         "scan": {
           "viewId": "scanView",
-          "viewName": "Scan"
+          "viewName": "Scan",
+          "title": "Scan & Verify"
         },
         "history": {
           "viewId": "historyView",
-          "viewName": "History"
+          "viewName": "History",
+          "title": "Pick History"
         },
         "diagnostics": {
           "viewId": "diagnosticsView",
-          "viewName": "Diagnostics"
+          "viewName": "Diagnostics",
+          "title": "System Diagnostics"
         }
       }
     }
   }
-}
+}

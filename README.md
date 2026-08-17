@@ -1,9 +1,9 @@
 # OneScanPicker
 
-OneScanPicker is an enterprise SAP BTP-ready warehouse picking and verification application built with SAP CAP (Node.js) and SAPUI5 / SAP Fiori.
+OneScanPicker is an enterprise SAP BTP-ready warehouse picking and verification application built with SAP CAP (Node.js) and SAPUI5 / SAP Fiori Horizon.
 
 ## Architectural Overview
-Provide a modern, locally developable picking and verification flow that runs seamlessly against a local SQLite mock data layer first, and transitions to SAP ECC or decentralized SAP EWM via SAP BTP Destination Service and Cloud Connector without frontend refactoring.
+Provide a modern, locally developable picking and verification flow that runs seamlessly against a local SQLite mock data layer first, and transitions to SAP ECC or decentralized SAP EWM via Direct SAP Gateway or SAP BTP Destination Service + Cloud Connector without frontend refactoring.
 
 ```
 [ SAPUI5 View / Controller ]
@@ -18,24 +18,26 @@ Provide a modern, locally developable picking and verification flow that runs se
 [ EWMConnectorService (Router) ]
        ┌────┴───────────────────────────┐
        ▼                                ▼
-[ MockEWMAdapter (SQLite) ]    [ SAPEWMAdapter (SAP BTP Destination) ]
+[ MockEWMAdapter (SQLite) ]    [ SAPEWMAdapter (SAP Gateway / BTP Destination) ]
 ```
 
 ## Technology Stack
 - **Backend Core**: SAP CAP (`@sap/cds` v8, Node.js)
-- **Frontend Framework**: SAPUI5 (v1.120) with Fiori ToolPage Shell layout (`sap.m`, `sap.f`, `sap.tnt`)
+- **Frontend Framework**: SAPUI5 (v1.120) with SAP Fiori Horizon Theme (`sap.m`, `sap.f`, `sap.tnt`, `sap.ui.layout`)
 - **Database Engine**: SQLite (`db.sqlite`) for local dev, HANA Cloud for production
 - **Protocol**: OData V4 (`/odata/v4/one-scan-picker/`)
 - **Connector Layer**: `services/EWMConnectorService.js`, `services/DestinationService.js`, and `services/adapters/`
 
 ## Completed Features
-- **Adapter-Based Integration Layer**: Decoupled `EWMConnectorService` routing requests to `MockEWMAdapter` (SQLite) or `SAPEWMAdapter` (SAP BTP Destination Service) via `ONE_SCAN_MODE`.
-- **BTP Destination Abstraction**: Centralized `DestinationService.js` resolving destinations and building authenticated SAP EWM client requests without leaking secrets.
-- **Live Dashboard**: Real-time counts for Open, Confirmed, and Failed tasks dynamically queried via OData V4.
-- **Warehouse Task Management**: Task table with search filters by material, status, and bin, plus step-by-step pick inspection details.
-- **Scan & Verification Engine**: Supports 1D/2D barcode string parsing (`BIN|MATERIAL|SERIAL|HU`), multi-attribute pick validation, and task confirmation.
-- **System Diagnostics**: Diagnostic panel displaying mode (`mock`/`production`), backend health, BTP Destination status, SAP EWM adapter status, and latency metrics.
-- **Automated Unit Test Suite**: Comprehensive unit test suite (`npm test`) covering mock mode, destination resolution, and error handling.
+- **Modern Fiori Horizon UI**: Clean, standardized SAP Fiori Horizon design with consistent layout, responsive grids, metric cards, status indicators, and tooltips.
+- **Deterministic Routing & Navigation**: Full hash-based navigation (`#/dashboard`, `#/tasks`, `#/tasks/{taskId}`, `#/scan`, `#/history`, `#/diagnostics`) with active sidebar synchronization and deep-linking support.
+- **Adapter-Based Integration Layer**: Decoupled `EWMConnectorService` routing requests across three modes: `mock` (SQLite), `direct` (On-Premise Gateway), and `production` (BTP Destination + Cloud Connector).
+- **Interactive Warehouse Dashboard**: Compact, responsive KPI cards for Open, Confirmed, and Discrepant tasks with direct filter navigation and quick actions.
+- **Warehouse Task Management**: Responsive Fiori table with search, status filtering (`All`, `Open`, `Confirmed`, `Failed`), and detailed step-by-step picking protocol views.
+- **1-Scan Verification & Barcode Engine**: 2D barcode parsing (`BIN|MATERIAL|SERIAL|HU`), multi-field parameter validation, instant demo presets, and verified task confirmation.
+- **Pick History & Audit Trail**: Real-time audit log of all scan events and verification results.
+- **Live System Diagnostics**: Real-time diagnostic ping testing CAP backend and SAP EWM reachability with latency measurement (ms), mode banners, and CSRF status.
+- **Automated Unit Test Suite**: 21 unit tests (`npm test`) covering mock mode, direct gateway resolution, CSRF handling, ABAP normalization, and error handling.
 
 ## Local Startup & Test Guide
 
@@ -59,9 +61,9 @@ Provide a modern, locally developable picking and verification flow that runs se
    - **UI5 Web Application**: `http://localhost:8080/index.html`
    - **CAP OData V4 Service**: `http://localhost:4004/odata/v4/one-scan-picker/`
 
-## Verification Points
-- `npm test` passes 16/16 test cases covering adapter routing, mock functions, and error handling.
+## Verification Checklist
+- `npm test` passes 21/21 test cases.
 - CAP OData endpoint `/odata/v4/one-scan-picker/DashboardSummary` returns dynamic metrics.
-- UI5 Dashboard cards render numeric counts correctly without `null` placeholders.
+- UI5 Dashboard KPI cards render numeric counts and navigate with filter context.
+- Diagnostics ping button measures live roundtrip latency and updates connection status.
 - Task status changes update dynamically upon scanning and confirmation.
-

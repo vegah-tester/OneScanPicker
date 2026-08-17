@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0 - Milestone UI/UX: SAP Fiori Horizon Redesign & Navigation Stabilization (2026-08-17)
+- **SAP Fiori Horizon Design System**: Upgraded theme from High Contrast Black (`sap_hcb`) to modern SAP Fiori Horizon (`sap_horizon`), custom stylesheet (`css/style.css`), balanced typography, and responsive spacing tokens.
+- **Enterprise Application Shell (`App.view.xml` & `App.controller.js`)**: Polished `ToolHeader` with system status indicators, active mode badges, application avatar, about/help dialog, and synchronized `SideNavigation` with deep route matching.
+- **Deterministic Routing**: Enhanced `manifest.json` routing configuration supporting `#/dashboard`, `#/tasks`, `#/tasks/{taskId}`, `#/scan`, `#/history`, `#/diagnostics`, and bypassed fallbacks.
+- **Dashboard Redesign (`Dashboard.view.xml`)**: Built responsive 3-column KPI card grid (Open, Confirmed, Discrepant tasks) with click-to-filter task navigation, live runtime health cards, and quick action buttons.
+- **Warehouse Tasks & Task Details (`TaskList.view.xml`, `TaskDetails.view.xml`)**: Standardized Fiori table with search, status filters (`ALL`, `Open`, `Confirmed`, `Failed`), semantic status indicators, detailed step-by-step picking protocol, and confirmation dialogs.
+- **Scan & Verification Engine (`Scan.view.xml`)**: Built structured 1-Scan 2D barcode reader interface with active task context, demo presets (WT1001, WT1003, Discrepancy), 4-card decoded breakdown, validation alerts, and pick confirmation.
+- **Pick History Audit Trail (`History.view.xml`)**: Standardized audit log table with search filtering and verification status badges.
+- **Live Diagnostics Ping (`Diagnostics.view.xml`, `Diagnostics.controller.js`)**: Fixed diagnostic ping flow with busy indicator, live latency measurement (ms), active runtime mode indicators, and enterprise architecture readiness checklist.
+
 ## 0.4.0 - Milestone 3: Full ECC to EWM Integration, Direct Gateway & BTP Cloud Connector Connectivity (2026-08-14)
 - **Direct Gateway & BTP Mode Router**: Enhanced `DestinationService.js` and `EWMConnectorService.js` to support three execution modes: `mock` (SQLite), `direct` (Direct On-Premise SAP Gateway over LAN/RDP), and `production` (BTP Destination Service + Cloud Connector).
 - **Production SAP EWM Adapter**: Implemented real HTTP engine in `SAPEWMAdapter.js` with automated `X-CSRF-Token` fetching (`getCsrfToken`), session cookie persistence, ABAP field abbreviation normalization (`TANUM`, `VLPLA`, `NLPLA`, `VLENR`, `SERNR`), and structured SAP Gateway error handling.

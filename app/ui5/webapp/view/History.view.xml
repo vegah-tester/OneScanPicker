@@ -2,13 +2,26 @@
   xmlns:mvc="sap.ui.core.mvc"
   xmlns="sap.m"
   controllerName="onescanpicker.ui5.controller.History">
-  <Page title="Pick Scan History" class="sapUiResponsivePadding--content">
+  <Page
+    id="historyPage"
+    title="Pick History"
+    showNavButton="false"
+    class="sapUiResponsivePadding--content">
     <headerContent>
-      <Button icon="sap-icon://refresh" text="Refresh" press=".onRefresh" />
+      <Button
+        id="refreshHistoryButton"
+        icon="sap-icon://refresh"
+        text="Refresh"
+        tooltip="Reload pick scan history"
+        press=".onRefresh" />
     </headerContent>
     <subHeader>
       <OverflowToolbar>
-        <SearchField width="50%" placeholder="Search scan log..." search=".onSearch" id="historySearchField" />
+        <SearchField
+          id="historySearchField"
+          placeholder="Filter by Scan String, Material, Bin, or Message..."
+          width="40%"
+          search=".onSearch" />
       </OverflowToolbar>
     </subHeader>
     <content>
@@ -16,27 +29,53 @@
         id="historyTable"
         items="{/Scans}"
         growing="true"
-        growingThreshold="15">
+        growingThreshold="20"
+        noDataText="No scan history records logged yet.">
+        <headerToolbar>
+          <OverflowToolbar>
+            <Title text="Audit Log &amp; Verification History" level="H3" />
+            <ToolbarSpacer />
+            <Text text="Synchronized with CAP ScanRecords entity" />
+          </OverflowToolbar>
+        </headerToolbar>
         <columns>
-          <Column><Text text="Scan Value Payload" /></Column>
-          <Column><Text text="Parsed Bin" /></Column>
-          <Column><Text text="Material" /></Column>
-          <Column><Text text="Handling Unit" /></Column>
-          <Column><Text text="Serial Number" /></Column>
-          <Column><Text text="Status" /></Column>
-          <Column><Text text="Message" /></Column>
+          <Column minScreenWidth="Tablet" demandPopin="false">
+            <Text text="Scan Value Payload" />
+          </Column>
+          <Column minScreenWidth="Tablet" demandPopin="true">
+            <Text text="Parsed Bin" />
+          </Column>
+          <Column minScreenWidth="Tablet" demandPopin="true">
+            <Text text="Material" />
+          </Column>
+          <Column minScreenWidth="Desktop" demandPopin="true">
+            <Text text="Handling Unit" />
+          </Column>
+          <Column minScreenWidth="Desktop" demandPopin="true">
+            <Text text="Serial Number" />
+          </Column>
+          <Column hAlign="Center">
+            <Text text="Verification" />
+          </Column>
+          <Column minScreenWidth="Tablet" demandPopin="true">
+            <Text text="Message / Details" />
+          </Column>
         </columns>
         <items>
           <ColumnListItem>
             <cells>
-              <Text text="{scanValue}" />
-              <Text text="{parsedBin}" />
+              <ObjectIdentifier
+                title="{scanValue}" />
+              <ObjectStatus
+                text="{parsedBin}"
+                icon="sap-icon://functional-location" />
               <Text text="{material}" />
               <Text text="{handlingUnit}" />
               <Text text="{serialNumber}" />
               <ObjectStatus
                 text="{= ${isValid} ? 'Valid' : 'Invalid' }"
-                state="{= ${isValid} ? 'Success' : 'Error' }" />
+                state="{= ${isValid} ? 'Success' : 'Error' }"
+                icon="{= ${isValid} ? 'sap-icon://accept' : 'sap-icon://error' }" />
               <Text text="{message}" />
             </cells>
           </ColumnListItem>
@@ -44,4 +83,4 @@
       </Table>
     </content>
   </Page>
-</mvc:View>
+</mvc:View>

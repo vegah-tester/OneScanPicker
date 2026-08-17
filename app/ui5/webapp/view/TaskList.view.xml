@@ -1,21 +1,39 @@
 <mvc:View
   xmlns:mvc="sap.ui.core.mvc"
   xmlns="sap.m"
+  xmlns:core="sap.ui.core"
   controllerName="onescanpicker.ui5.controller.TaskList">
-  <Page title="Warehouse Tasks" class="sapUiResponsivePadding--content">
+  <Page
+    id="tasksPage"
+    title="Warehouse Tasks"
+    showNavButton="false"
+    class="sapUiResponsivePadding--content">
     <headerContent>
-      <Button icon="sap-icon://refresh" text="Refresh" press=".onRefresh" />
+      <Button
+        id="refreshTasksButton"
+        icon="sap-icon://refresh"
+        text="Refresh"
+        tooltip="Refresh warehouse tasks list"
+        press=".onRefresh" />
     </headerContent>
     <subHeader>
       <OverflowToolbar>
-        <SearchField width="40%" placeholder="Search task, material, bin..." search=".onSearch" id="taskSearchField" />
+        <SearchField
+          id="taskSearchField"
+          placeholder="Filter by Task, Material, Source Bin..."
+          width="40%"
+          search=".onSearch" />
         <ToolbarSpacer />
-        <Select id="statusFilterSelect" change=".onFilterChange" selectedKey="ALL">
+        <Label text="Status Filter:" labelFor="statusFilterSelect" class="sapUiTinyMarginEnd" />
+        <Select
+          id="statusFilterSelect"
+          selectedKey="ALL"
+          change=".onFilterChange">
           <items>
-            <core:Item xmlns:core="sap.ui.core" key="ALL" text="All Statuses" />
-            <core:Item xmlns:core="sap.ui.core" key="Open" text="Open" />
-            <core:Item xmlns:core="sap.ui.core" key="Confirmed" text="Confirmed" />
-            <core:Item xmlns:core="sap.ui.core" key="Failed" text="Failed" />
+            <core:Item key="ALL" text="All Statuses" />
+            <core:Item key="Open" text="Open Only" />
+            <core:Item key="Confirmed" text="Confirmed Only" />
+            <core:Item key="Failed" text="Failed Only" />
           </items>
         </Select>
       </OverflowToolbar>
@@ -27,34 +45,68 @@
         mode="SingleSelectMaster"
         selectionChange=".onTaskSelect"
         growing="true"
-        growingThreshold="10">
+        growingThreshold="20"
+        noDataText="No warehouse tasks found matching criteria.">
+        <headerToolbar>
+          <OverflowToolbar>
+            <Title text="Warehouse Tasks Overview" level="H3" />
+            <ToolbarSpacer />
+            <Button
+              text="Quick 1-Scan Pick"
+              icon="sap-icon://bar-code"
+              type="Emphasized"
+              press=".onGoToGenericScan" />
+          </OverflowToolbar>
+        </headerToolbar>
         <columns>
-          <Column><Text text="Task Number" /></Column>
-          <Column><Text text="Material" /></Column>
-          <Column><Text text="Source Bin" /></Column>
-          <Column><Text text="Destination Bin" /></Column>
-          <Column><Text text="Handling Unit" /></Column>
-          <Column><Text text="Serial Number" /></Column>
-          <Column><Text text="Status" /></Column>
-          <Column hAlign="End"><Text text="Actions" /></Column>
+          <Column minScreenWidth="Tablet" demandPopin="false">
+            <Text text="Task Number" />
+          </Column>
+          <Column minScreenWidth="Tablet" demandPopin="true">
+            <Text text="Material SKU" />
+          </Column>
+          <Column minScreenWidth="Desktop" demandPopin="true">
+            <Text text="Source Storage Bin" />
+          </Column>
+          <Column minScreenWidth="Desktop" demandPopin="true">
+            <Text text="Destination Storage Bin" />
+          </Column>
+          <Column minScreenWidth="Tablet" demandPopin="true">
+            <Text text="Handling Unit" />
+          </Column>
+          <Column minScreenWidth="Desktop" demandPopin="true">
+            <Text text="Serial Number" />
+          </Column>
+          <Column hAlign="Center">
+            <Text text="Status" />
+          </Column>
+          <Column hAlign="End">
+            <Text text="Action" />
+          </Column>
         </columns>
         <items>
           <ColumnListItem type="Navigation" press=".onTaskPress">
             <cells>
-              <ObjectIdentifier title="{taskNumber}" />
+              <ObjectIdentifier
+                title="{taskNumber}"
+                text="{= 'ID: ' + ${ID} }" />
               <Text text="{material}" />
-              <Text text="{sourceBin}" />
+              <ObjectStatus
+                text="{sourceBin}"
+                icon="sap-icon://functional-location" />
               <Text text="{destinationBin}" />
               <Text text="{handlingUnit}" />
               <Text text="{serialNumber}" />
               <ObjectStatus
                 text="{status}"
-                state="{= ${status} === 'Open' ? 'Information' : (${status} === 'Confirmed' ? 'Success' : 'Error') }" />
+                state="{= ${status} === 'Open' ? 'Information' : (${status} === 'Confirmed' ? 'Success' : 'Error') }"
+                icon="{= ${status} === 'Open' ? 'sap-icon://in-progress' : (${status} === 'Confirmed' ? 'sap-icon://accept' : 'sap-icon://error') }" />
               <HBox justifyContent="End">
                 <Button
                   text="Scan Pick"
                   icon="sap-icon://bar-code"
-                  type="Emphasized"
+                  type="{= ${status} === 'Open' ? 'Emphasized' : 'Default' }"
+                  tooltip="Execute 1-Scan pick for this task"
                   press=".onScanTask" />
               </HBox>
             </cells>

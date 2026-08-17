@@ -10,38 +10,61 @@ sap.ui.define([
     onInit: function () {
       var oRouter = this.getOwnerComponent().getRouter();
       if (oRouter) {
-        oRouter.getRoute("taskList").attachPatternMatched(this.onRefresh, this);
+        oRouter.getRoute("taskList").attachPatternMatched(this._onRouteMatched, this);
       }
+    },
+
+    _onRouteMatched: function () {
+      var oAppState = this.getOwnerComponent().getModel("appState");
+      var sInitialFilter = oAppState ? oAppState.getProperty("/initialStatusFilter") : null;
+
+      var oSelect = this.byId("statusFilterSelect");
+      if (oSelect) {
+        if (sInitialFilter) {
+          oSelect.setSelectedKey(sInitialFilter);
+          if (oAppState) {
+            oAppState.setProperty("/initialStatusFilter", null);
+          }
+        }
+      }
+
+      this._applyFilters();
     },
 
     onRefresh: function () {
       var oTable = this.byId("tasksTable");
       if (oTable && oTable.getBinding("items")) {
         oTable.getBinding("items").refresh();
+        MessageToast.show("Warehouse tasks refreshed.");
       }
     },
 
-    onSearch: function (oEvent) {
+    onSearch: function () {
       this._applyFilters();
     },
 
-    onFilterChange: function (oEvent) {
+    onFilterChange: function () {
       this._applyFilters();
     },
 
     _applyFilters: function () {
       var aFilters = [];
-      var sQuery = this.byId("taskSearchField").getValue();
-      var sStatusKey = this.byId("statusFilterSelect").getSelectedKey();
+      var oSearchField = this.byId("taskSearchField");
+      var sQuery = oSearchField ? oSearchField.getValue() : "";
+      var oSelect = this.byId("statusFilterSelect");
+      var sStatusKey = oSelect ? oSelect.getSelectedKey() : "ALL";
 
-      if (sQuery && sQuery.length > 0) {
+      if (sQuery && sQuery.trim().length > 0) {
+        var sTrimmed = sQuery.trim();
         var aSearchFilters = [
-          new Filter("taskNumber", FilterOperator.Contains, sQuery),
-          new Filter("material", FilterOperator.Contains, sQuery),
-          new Filter("sourceBin", FilterOperator.Contains, sQuery),
-          new Filter("destinationBin", FilterOperator.Contains, sQuery)
+          new Filter("taskNumber", FilterOperator.Contains, sTrimmed),
+          new Filter("material", FilterOperator.Contains, sTrimmed),
+          new Filter("sourceBin", FilterOperator.Contains, sTrimmed),
+          new Filter("destinationBin", FilterOperator.Contains, sTrimmed),
+          new Filter("handlingUnit", FilterOperator.Contains, sTrimmed),
+          new Filter("serialNumber", FilterOperator.Contains, sTrimmed)
         ];
-        aFilters.push(new Filter({ filters: aSearchFilters, AND: false }));
+        aFilters.push(new Filter({ filters: aSearchFilters, and: false }));
       }
 
       if (sStatusKey && sStatusKey !== "ALL") {
@@ -49,9 +72,11 @@ sap.ui.define([
       }
 
       var oTable = this.byId("tasksTable");
-      var oBinding = oTable.getBinding("items");
-      if (oBinding) {
-        oBinding.filter(aFilters);
+      if (oTable) {
+        var oBinding = oTable.getBinding("items");
+        if (oBinding) {
+          oBinding.filter(aFilters);
+        }
       }
     },
 
@@ -59,15 +84,29 @@ sap.ui.define([
       var oItem = oEvent.getSource();
       var oContext = oItem.getBindingContext();
       if (oContext) {
-        var sTaskNumber = oContext.getProperty("taskNumber");
+        var sTaskNumber = oContext.getProperty("taskNumber") || oContext.getProperty("ID");
         this.getOwnerComponent().getRouter().navTo("taskDetails", {
           taskId: sTaskNumber
         });
       }
     },
 
+    onTaskSelect: function (oEvent) {
+      var oItem = oEvent.getParameter("listItem");
+      if (oItem) {
+        var oContext = oItem.getBindingContext();
+        if (oContext) {
+          var sTaskNumber = oContext.getProperty("taskNumber") || oContext.getProperty("ID");
+          this.getOwnerComponent().getRouter().navTo("taskDetails", {
+            taskId: sTaskNumber
+          });
+        }
+      }
+    },
+
     onScanTask: function (oEvent) {
-      var oItem = oEvent.getSource().getParent().getParent();
+      var oButton = oEvent.getSource();
+      var oItem = oButton.getParent().getParent();
       var oContext = oItem.getBindingContext();
       if (oContext) {
         var oTaskData = oContext.getObject();
@@ -75,9 +114,13 @@ sap.ui.define([
         if (oAppState) {
           oAppState.setProperty("/selectedTask", oTaskData);
         }
-        MessageToast.show("Selected " + oTaskData.taskNumber + " for scanning.");
+        MessageToast.show("Selected Task " + oTaskData.taskNumber + " for 1-Scan verification.");
         this.getOwnerComponent().getRouter().navTo("scan");
       }
+    },
+
+    onGoToGenericScan: function () {
+      this.getOwnerComponent().getRouter().navTo("scan");
     }
   });
 });

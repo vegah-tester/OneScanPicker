@@ -1,0 +1,94 @@
+/* OneScanPicker Enterprise Fiori Stylesheet */
+
+/* Consistent Shell & Canvas Spacing */
+.sapUiBody {
+  margin: 0;
+  padding: 0;
+  font-family: "72", "72full", Arial, Helvetica, sans-serif;
+  background-color: #f5f6f8;
+}
+
+/* Header & Title Adjustments */
+.oneScanHeaderTitle {
+  font-weight: 700 !important;
+  font-size: 1.15rem !important;
+  color: #1d2d3e;
+}
+
+/* Dashboard KPI Card Styling */
+.kpiCardContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.kpiTileCustom {
+  min-height: 120px;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.kpiTileCustom:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Card & Panel Enhancements */
+.fioriPanelCard {
+  border-radius: 8px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+  background: #ffffff;
+}
+
+/* Quick Action Buttons */
+.quickActionButton {
+  margin-right: 0.75rem !important;
+  margin-bottom: 0.5rem !important;
+  border-radius: 6px !important;
+}
+
+/* Latency Status Badges */
+.latencyBadgeFast {
+  font-weight: 600;
+  color: #107e3e !important;
+}
+
+.latencyBadgeMedium {
+  font-weight: 600;
+  color: #e9730c !important;
+}
+
+.latencyBadgeSlow {
+  font-weight: 600;
+  color: #bb0000 !important;
+}
+
+/* Table and Form Clean Spacing */
+.sapMListTblCell {
+  vertical-align: middle !important;
+}
+
+.fioriSectionHeader {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #32363a;
+  margin-bottom: 0.5rem;
+}
+
+/* Scan Screen Input Big & Focused */
+.scanInputHero .sapMInputBaseInner {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px;
+  height: 2.75rem !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .kpiCardContainer {
+    grid-template-columns: 1fr;
+  }
+}
