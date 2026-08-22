@@ -21,4 +21,4 @@ server:
       afterMiddleware: compression
       mountPath: /odata/v4/one-scan-picker
       configuration:
-        baseUri: http://localhost:4004/odata/v4/one-scan-picker
+        baseUri: http://127.0.0.1:4004/odata/v4/one-scan-picker

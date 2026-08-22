@@ -6,6 +6,7 @@
     "ui5-middleware-simpleproxy": "^3.8.0"
   },
   "scripts": {
-    "start": "call ..\\..\\node_modules\\.bin\\ui5.cmd serve --config ui5.yaml --port 8080 --open /index.html"
+    "start": "call ..\\..\\node_modules\\.bin\\ui5.cmd serve --config ui5.yaml --port 8080 --open /index.html",
+    "build": "call ..\\..\\node_modules\\.bin\\ui5.cmd build --config ui5.yaml --dest dist"
   }
 }

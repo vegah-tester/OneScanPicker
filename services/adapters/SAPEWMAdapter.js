@@ -1,7 +1,7 @@
 const axios = require('axios');
 const https = require('https');
 const { createLogger } = require('../LoggerService');
-const { getEWMClient, getDestinationInfo, testConnectivity } = require('../DestinationService');
+const { getEWMClient, getDestinationInfo, getConnectionStatus: getServiceConnectionStatus, testConnectivity } = require('../DestinationService');
 
 const logger = createLogger('SAPEWMAdapter');
 
@@ -47,7 +47,7 @@ function createHttpClient(client) {
   const config = {
     baseURL: client.baseUrl.endsWith('/') ? client.baseUrl.slice(0, -1) : client.baseUrl,
     headers: { ...client.headers },
-    timeout: client.timeout || 15000,
+    timeout: client.timeout || 5000,
     auth: client.auth
   };
 
@@ -138,7 +138,6 @@ async function getOpenWarehouseTasks() {
 
     let rawTasks = [];
     if (response.data) {
-      // Handle OData V2 format (response.data.d.results) or OData V4 format (response.data.value)
       rawTasks = (response.data.d && response.data.d.results) || response.data.value || response.data.d || response.data || [];
     }
 
@@ -151,7 +150,6 @@ async function getOpenWarehouseTasks() {
   } catch (error) {
     logger.warn(`[SAPEWMAdapter] Live SAP fetch encountered issue (${error.message}). Checking fallback simulation...`);
     
-    // In direct/production mode, if connection fails but developer is testing or SAP mock simulation is allowed:
     if (process.env.SAP_EWM_FALLBACK_SIMULATION === 'true' || error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
       logger.info('[SAPEWMAdapter] Returning mapped SAP standard representation for development');
       return [
@@ -303,7 +301,7 @@ async function validateScan(payload) {
 }
 
 /**
- * Confirms a Warehouse Task in SAP EWM (via OData action/function or entity update).
+ * Confirms a Warehouse Task in SAP EWM.
  */
 async function confirmWarehouseTask(taskNumber) {
   const client = getEWMClient();
@@ -350,7 +348,6 @@ async function confirmWarehouseTask(taskNumber) {
     const sapMsg = extractSapErrorMessage(error);
     logger.warn(`[SAPEWMAdapter] Live confirmation encountered issue: ${sapMsg}`);
 
-    // In mock fallback or when testing without live writes:
     if (process.env.SAP_EWM_FALLBACK_SIMULATION === 'true' || error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
       return {
         success: true,
@@ -369,7 +366,7 @@ async function confirmWarehouseTask(taskNumber) {
 }
 
 /**
- * Retrieves Pick History / audit log.
+ * Retrieves Pick History.
  */
 async function getPickHistory() {
   const client = getEWMClient();
@@ -378,10 +375,10 @@ async function getPickHistory() {
 }
 
 /**
- * Returns connection diagnostic status.
+ * Returns instantaneous connection metadata (non-blocking).
  */
 async function getConnectionStatus() {
-  return testConnectivity();
+  return getServiceConnectionStatus();
 }
 
 module.exports = {
@@ -392,5 +389,6 @@ module.exports = {
   getPickHistory,
   getConnectionStatus,
   mapSapWarehouseTaskToContract,
-  getCsrfToken
+  getCsrfToken,
+  testConnectivity
 };
