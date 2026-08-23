@@ -5,10 +5,10 @@ coverage/
 .DS_Store
 *.log
 .env
+default-env.json
 db.sqlite
 .debugchronicle
 .agent/
 app/ui5/dist/
 app/ui5/node_modules/
 app/ui5/webapp/resources/
-

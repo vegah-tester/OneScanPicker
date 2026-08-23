@@ -8,7 +8,7 @@
     "generate:dashboard-data": "node scripts/generate-dashboard-data.js",
     "start:backend": "npm run deploy:db && npm run generate:dashboard-data && npx cds serve srv --port 4004",
     "start:ui5": "npm --prefix app/ui5 run start",
-    "start": "concurrently -k -n backend,ui5 \"npm run start:backend\" \"npm run start:ui5\"",
+    "start": "npx concurrently -k -n backend,ui5 \"npm run start:backend\" \"npm run start:ui5\"",
     "build:cds": "npx cds build --production",
     "build:ui5": "npm --prefix app/ui5 run build",
     "build": "npm run build:cds && npm run build:ui5",
@@ -19,13 +19,13 @@
   "dependencies": {
     "@sap/cds": "^8.9.5",
     "axios": "^1.11.0",
+    "concurrently": "^9.1.2",
     "express": "^4.21.2",
     "sqlite3": "^6.0.1"
   },
   "devDependencies": {
     "@sap/cds-dk": "^8.9.5",
     "@ui5/cli": "^4.0.13",
-    "concurrently": "^9.1.2",
     "ui5-middleware-simpleproxy": "^3.8.0"
   }
 }
