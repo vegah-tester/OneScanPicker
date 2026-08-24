@@ -19,14 +19,14 @@ function mapSapWarehouseTaskToContract(sapTask) {
   if (!sapTask) return null;
 
   const taskNumber = String(sapTask.WarehouseTask || sapTask.TANUM || sapTask.WT_NUM || sapTask.taskNumber || sapTask.ID || '');
-  const material = String(sapTask.Product || sapTask.MATNR || sapTask.MATERIAL || sapTask.material || '');
+  const material = String(sapTask.ProductName || sapTask.Product || sapTask.MATNR || sapTask.MATERIAL || sapTask.material || '');
   const sourceBin = String(sapTask.SourceStorageBin || sapTask.VLPLA || sapTask.SOURCE_BIN || sapTask.sourceBin || '');
   const destinationBin = String(sapTask.DestinationStorageBin || sapTask.NLPLA || sapTask.DEST_BIN || sapTask.destinationBin || '');
-  const handlingUnit = String(sapTask.SourceHandlingUnit || sapTask.VLENR || sapTask.HUIDENT || sapTask.handlingUnit || '');
+  const handlingUnit = String(sapTask.SourceHandlingUnit || sapTask.DestinationHandlingUnit || sapTask.VLENR || sapTask.HUIDENT || sapTask.handlingUnit || '');
   const serialNumber = String(sapTask.SerialNumber || sapTask.SERNR || sapTask.SERIAL_NO || sapTask.serialNumber || '');
   
-  const rawStatus = String(sapTask.ConfirmationStatus || sapTask.TAPOS || sapTask.STATUS || sapTask.status || 'O').toUpperCase();
-  const status = (rawStatus === 'C' || rawStatus === 'CONFIRMED') ? 'Confirmed' : (rawStatus === 'F' || rawStatus === 'FAILED') ? 'Failed' : 'Open';
+  const rawStatus = String(sapTask.WarehouseTaskStatus || sapTask.ConfirmationStatus || sapTask.TAPOS || sapTask.STATUS || sapTask.status || '').trim().toUpperCase();
+  const status = (rawStatus === 'B' || rawStatus === 'C' || rawStatus === 'CONFIRMED') ? 'Confirmed' : (rawStatus === 'F' || rawStatus === 'FAILED') ? 'Failed' : 'Open';
 
   return {
     ID: taskNumber || String(sapTask.ID || Date.now()),
@@ -128,7 +128,8 @@ function extractSapErrorMessage(error) {
 async function getOpenWarehouseTasks() {
   const client = getEWMClient();
   const entitySet = process.env.SAP_EWM_TASK_ENTITY || 'WarehouseTasks';
-  const url = `/${entitySet}?$filter=ConfirmationStatus eq 'O'`;
+  const filterQuery = process.env.SAP_EWM_TASK_FILTER || '';
+  const url = `/${entitySet}${filterQuery ? '?' + filterQuery : ''}`;
 
   logger.info(`[SAPEWMAdapter] Dispatching GET open tasks request to SAP: ${client.baseUrl}${url}`);
 

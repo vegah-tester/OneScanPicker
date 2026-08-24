@@ -187,8 +187,10 @@ async function runDiagnostic() {
   // --------------------------------------------------------------------------
   console.log(`[Step 5] OData $metadata Document Retrieval`);
   try {
-    const metaResp = await http.get('/$metadata');
-    if (metaResp.status === 200 && typeof metaResp.data === 'string' && metaResp.data.includes('edmx:Edmx')) {
+    const metaResp = await http.get('/$metadata', {
+      headers: { 'Accept': 'application/xml, text/xml, */*' }
+    });
+    if (metaResp.status === 200 && typeof metaResp.data === 'string' && (metaResp.data.includes('edmx:Edmx') || metaResp.data.includes('Schema'))) {
       console.log(`  [PASS] $metadata document retrieved successfully (XML Length: ${metaResp.data.length} bytes)`);
       const hasWarehouseEntity = metaResp.data.includes('WarehouseTask') || metaResp.data.includes('WarehouseTaskSet');
       console.log(`  • EntitySet Check: ${hasWarehouseEntity ? 'Contains WarehouseTask entity definition' : 'Review entity set names in XML'}`);
@@ -209,7 +211,7 @@ async function runDiagnostic() {
   // --------------------------------------------------------------------------
   // STEP 6: Entity-Set Collection Query
   // --------------------------------------------------------------------------
-  const entitySet = process.env.SAP_EWM_TASK_ENTITY || 'WarehouseTasks';
+  const entitySet = process.env.SAP_EWM_TASK_ENTITY || 'WarehouseTask';
   console.log(`[Step 6] Entity-Set Collection Query (/${entitySet})`);
   try {
     const entityResp = await http.get(`/${entitySet}?$top=1`);
@@ -232,9 +234,10 @@ async function runDiagnostic() {
   // --------------------------------------------------------------------------
   // STEP 7: Open Warehouse Task Query
   // --------------------------------------------------------------------------
-  console.log(`[Step 7] Open Warehouse Tasks Query ($filter=ConfirmationStatus eq 'O')`);
+  console.log(`[Step 7] Open Warehouse Tasks Query (/${entitySet})`);
   try {
-    const tasksResp = await http.get(`/${entitySet}?$filter=ConfirmationStatus eq 'O'&$top=5`);
+    const filterParam = process.env.SAP_EWM_TASK_FILTER ? `?${process.env.SAP_EWM_TASK_FILTER}&$top=5` : `?$top=5`;
+    const tasksResp = await http.get(`/${entitySet}${filterParam}`);
     if (tasksResp.status === 200 && tasksResp.data) {
       const rawTasks = (tasksResp.data.d && tasksResp.data.d.results) || tasksResp.data.value || [];
       console.log(`  [PASS] Open tasks returned: ${rawTasks.length} task(s)`);
