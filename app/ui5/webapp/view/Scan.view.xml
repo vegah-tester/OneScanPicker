@@ -1,6 +1,7 @@
 <mvc:View
   xmlns:mvc="sap.ui.core.mvc"
   xmlns="sap.m"
+  xmlns:core="sap.ui.core"
   xmlns:f="sap.ui.layout.form"
   xmlns:l="sap.ui.layout"
   controllerName="onescanpicker.ui5.controller.Scan">
@@ -58,6 +59,9 @@
           class="fioriPanelCard sapUiSmallMarginBottom">
           <content>
             <VBox class="sapUiSmallMargin">
+              <!-- Systematic 4-Step Verification Sequence Indicator -->
+              <core:HTML content='&lt;div class="scanStepContainer"&gt;&lt;div class="scanStepItem"&gt;&lt;div class="scanStepBadge"&gt;1&lt;/div&gt;&lt;div class="scanStepLabel"&gt;Source Bin&lt;/div&gt;&lt;/div&gt;&lt;span class="sapUiIcon" style="font-family:SAP-icons;color:#94a3b8;"&gt;&amp;#xe057;&lt;/span&gt;&lt;div class="scanStepItem"&gt;&lt;div class="scanStepBadge"&gt;2&lt;/div&gt;&lt;div class="scanStepLabel"&gt;Material SKU&lt;/div&gt;&lt;/div&gt;&lt;span class="sapUiIcon" style="font-family:SAP-icons;color:#94a3b8;"&gt;&amp;#xe057;&lt;/span&gt;&lt;div class="scanStepItem"&gt;&lt;div class="scanStepBadge"&gt;3&lt;/div&gt;&lt;div class="scanStepLabel"&gt;Serial Number&lt;/div&gt;&lt;/div&gt;&lt;span class="sapUiIcon" style="font-family:SAP-icons;color:#94a3b8;"&gt;&amp;#xe057;&lt;/span&gt;&lt;div class="scanStepItem"&gt;&lt;div class="scanStepBadge"&gt;4&lt;/div&gt;&lt;div class="scanStepLabel"&gt;Handling Unit&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;' preferDOM="false" />
+
               <Label text="Scan or Enter Complete Pick Barcode String (Format: BIN|MATERIAL|SERIAL|HU)" required="true" class="sapUiTinyMarginBottom" />
               <HBox class="sapUiSmallMarginBottom scanInputHero">
                 <Input

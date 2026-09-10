@@ -42,6 +42,7 @@
       <Table
         id="tasksTable"
         items="{/Tasks}"
+        class="systematicTable"
         mode="SingleSelectMaster"
         selectionChange=".onTaskSelect"
         growing="true"

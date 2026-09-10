@@ -1,156 +1,366 @@
 <mvc:View
   xmlns:mvc="sap.ui.core.mvc"
   xmlns="sap.m"
+  xmlns:core="sap.ui.core"
   xmlns:f="sap.ui.layout.form"
   xmlns:l="sap.ui.layout"
   controllerName="onescanpicker.ui5.controller.Dashboard">
   <Page
     id="dashboardPage"
-    title="Warehouse Dashboard"
+    title="Warehouse Operations Command Center"
     showNavButton="false"
     class="sapUiResponsivePadding--content">
     <headerContent>
+      <HBox alignItems="Center" class="sapUiTinyMarginEnd">
+        <core:HTML content='&lt;span class="statusDotPulse"&gt;&lt;/span&gt;' preferDOM="false" />
+        <ObjectStatus
+          text="{dashboard>/connectionStatus}"
+          state="{= ${dashboard>/connectionStatus} === 'Connected' ? 'Success' : 'Error' }"
+          class="sapUiTinyMarginEnd" />
+      </HBox>
       <Button
         id="refreshDashboardButton"
         icon="sap-icon://refresh"
         text="Refresh"
-        tooltip="Refresh live dashboard metrics"
+        tooltip="Refresh live warehouse metrics &amp; graphs"
         press=".onRefresh" />
     </headerContent>
     <content>
       <VBox class="sapUiSmallMargin" renderType="Bare">
-        <!-- Dashboard Header -->
-        <VBox class="sapUiSmallMarginBottom">
-          <Title text="Live Warehouse Operations" level="H2" class="sapUiTinyMarginBottom" />
-          <Text text="Real-time picking metrics and system health synchronized with SAP EWM &amp; CAP runtime." />
-        </VBox>
+        <!-- Subheader & Description -->
+        <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="sapUiSmallMarginBottom">
+          <VBox>
+            <Title text="Operational Warehouse Overview" level="H2" class="sapUiTinyMarginBottom" />
+            <Text text="Live SAP EWM &amp; CAP synchronized picking metrics, fulfillment velocity, and pending pick queue." />
+          </VBox>
+          <HBox class="sapUiTinyMarginTop">
+            <ObjectStatus
+              title="Backend Mode"
+              text="{= ${dashboard>/mode}.toUpperCase() }"
+              state="{= ${dashboard>/mode} === 'mock' ? 'Information' : 'Success' }"
+              icon="sap-icon://wrench"
+              class="sapUiSmallMarginEnd" />
+            <ObjectStatus
+              title="Sync Time"
+              text="{dashboard>/lastCheck}"
+              icon="sap-icon://history" />
+          </HBox>
+        </HBox>
 
-        <!-- KPI Metrics Grid -->
+        <!-- Executive KPI Metric Cards (4 Columns) -->
         <l:Grid
-          defaultSpan="XL4 L4 M4 S12"
-          class="sapUiSmallMarginBottom sapUiNoContentPadding"
+          defaultSpan="XL3 L3 M6 S12"
+          class="kpiSummaryGrid sapUiNoContentPadding"
           hSpacing="1"
           vSpacing="1">
+          <!-- Total Tasks -->
+          <CustomListItem
+            class="executiveKpiCard kpiCardTotal"
+            type="Active"
+            press=".onGoToTasks">
+            <VBox class="kpiContentBox">
+              <HBox justifyContent="SpaceBetween" alignItems="Center" class="kpiHeaderRow">
+                <Text text="Total Workload" class="kpiTitleText" />
+                <core:HTML content='&lt;div class="kpiIconWrapper kpiIconTotal"&gt;&lt;span class="sapUiIcon sapUiIconMirrorInRTL" style="font-family: SAP-icons; font-size: 1.15rem;"&gt;&amp;#xe0b2;&lt;/span&gt;&lt;/div&gt;' preferDOM="false" />
+              </HBox>
+              <HBox alignItems="Baseline" class="kpiValueRow">
+                <Text text="{dashboard>/totalTasks}" class="kpiBigNumber" />
+                <core:HTML content='&lt;span class="kpiBadgePill kpiPillIndigo"&gt;All Tasks&lt;/span&gt;' preferDOM="false" />
+              </HBox>
+              <Text text="Total registered warehouse picks" class="kpiSubtitleText" />
+            </VBox>
+          </CustomListItem>
+
           <!-- Open Tasks -->
-          <GenericTile
-            id="openTasksTile"
-            header="Open Tasks"
-            subheader="Awaiting Pick Execution"
-            class="kpiTileCustom"
+          <CustomListItem
+            class="executiveKpiCard kpiCardOpen"
+            type="Active"
             press=".onGoToOpenTasks">
-            <TileContent>
-              <NumericContent
-                value="{dashboard>/openTasks}"
-                valueColor="Neutral"
-                indicator="None"
-                icon="sap-icon://task"
-                truncateValueTo="5" />
-            </TileContent>
-          </GenericTile>
+            <VBox class="kpiContentBox">
+              <HBox justifyContent="SpaceBetween" alignItems="Center" class="kpiHeaderRow">
+                <Text text="Awaiting Pick" class="kpiTitleText" />
+                <core:HTML content='&lt;div class="kpiIconWrapper kpiIconOpen"&gt;&lt;span class="sapUiIcon" style="font-family: SAP-icons; font-size: 1.15rem;"&gt;&amp;#xe0b8;&lt;/span&gt;&lt;/div&gt;' preferDOM="false" />
+              </HBox>
+              <HBox alignItems="Baseline" class="kpiValueRow">
+                <Text text="{dashboard>/openTasks}" class="kpiBigNumber" />
+                <core:HTML content='&lt;span class="kpiBadgePill kpiPillBlue"&gt;Action Needed&lt;/span&gt;' preferDOM="false" />
+              </HBox>
+              <Text text="Tasks waiting for 1-Scan verification" class="kpiSubtitleText" />
+            </VBox>
+          </CustomListItem>
 
           <!-- Confirmed Tasks -->
-          <GenericTile
-            id="confirmedTasksTile"
-            header="Confirmed Tasks"
-            subheader="Verified &amp; Completed Picks"
-            class="kpiTileCustom"
+          <CustomListItem
+            class="executiveKpiCard kpiCardConfirmed"
+            type="Active"
             press=".onGoToConfirmedTasks">
-            <TileContent>
-              <NumericContent
-                value="{dashboard>/confirmedTasks}"
-                valueColor="Good"
-                indicator="None"
-                icon="sap-icon://accept"
-                truncateValueTo="5" />
-            </TileContent>
-          </GenericTile>
+            <VBox class="kpiContentBox">
+              <HBox justifyContent="SpaceBetween" alignItems="Center" class="kpiHeaderRow">
+                <Text text="Completed Picks" class="kpiTitleText" />
+                <core:HTML content='&lt;div class="kpiIconWrapper kpiIconConfirmed"&gt;&lt;span class="sapUiIcon" style="font-family: SAP-icons; font-size: 1.15rem;"&gt;&amp;#xe05b;&lt;/span&gt;&lt;/div&gt;' preferDOM="false" />
+              </HBox>
+              <HBox alignItems="Baseline" class="kpiValueRow">
+                <Text text="{dashboard>/confirmedTasks}" class="kpiBigNumber" />
+                <core:HTML content='&lt;span class="kpiBadgePill kpiPillGreen"&gt;Verified&lt;/span&gt;' preferDOM="false" />
+              </HBox>
+              <Text text="Successfully verified and confirmed" class="kpiSubtitleText" />
+            </VBox>
+          </CustomListItem>
 
-          <!-- Failed Tasks -->
-          <GenericTile
-            id="failedTasksTile"
-            header="Discrepancies"
-            subheader="Failed or Mismatched Tasks"
-            class="kpiTileCustom"
+          <!-- Discrepancies / Failed -->
+          <CustomListItem
+            class="executiveKpiCard kpiCardFailed"
+            type="Active"
             press=".onGoToFailedTasks">
-            <TileContent>
-              <NumericContent
-                value="{dashboard>/failedTasks}"
-                valueColor="Error"
-                indicator="None"
-                icon="sap-icon://error"
-                truncateValueTo="5" />
-            </TileContent>
-          </GenericTile>
+            <VBox class="kpiContentBox">
+              <HBox justifyContent="SpaceBetween" alignItems="Center" class="kpiHeaderRow">
+                <Text text="Discrepancies" class="kpiTitleText" />
+                <core:HTML content='&lt;div class="kpiIconWrapper kpiIconFailed"&gt;&lt;span class="sapUiIcon" style="font-family: SAP-icons; font-size: 1.15rem;"&gt;&amp;#xe03e;&lt;/span&gt;&lt;/div&gt;' preferDOM="false" />
+              </HBox>
+              <HBox alignItems="Baseline" class="kpiValueRow">
+                <Text text="{dashboard>/failedTasks}" class="kpiBigNumber" />
+                <core:HTML content='&lt;span class="kpiBadgePill kpiPillRed"&gt;Attention&lt;/span&gt;' preferDOM="false" />
+              </HBox>
+              <Text text="Mismatched or rejected scan attempts" class="kpiSubtitleText" />
+            </VBox>
+          </CustomListItem>
         </l:Grid>
 
-        <!-- System Status & Quick Actions Two-Column Grid -->
+        <!-- Visual Analytics & Operations Deck (Two Columns) -->
         <l:Grid
           defaultSpan="XL6 L6 M12 S12"
           class="sapUiSmallMarginTop sapUiNoContentPadding"
           hSpacing="1"
           vSpacing="1">
-          <!-- System Connection Card -->
+          <!-- Visual Analytics Card (Donut Chart & Distribution) -->
           <Panel
-            headerText="System Connection &amp; Runtime Status"
-            class="fioriPanelCard">
+            headerText="Fulfillment Velocity &amp; Task Allocation Graph"
+            class="systematicCard">
             <content>
-              <f:SimpleForm editable="false" layout="ResponsiveGridLayout" labelSpanXL="4" labelSpanL="4" labelSpanM="4" labelSpanS="12">
-                <f:content>
-                  <Label text="Runtime Mode" />
-                  <ObjectStatus
-                    text="{= ${dashboard>/mode}.toUpperCase() }"
-                    state="{= ${dashboard>/mode} === 'mock' ? 'Information' : 'Success' }" />
+              <VBox>
+                <HBox justifyContent="SpaceAround" alignItems="Center" wrap="Wrap" class="sapUiSmallMarginBottom">
+                  <!-- SVG Donut Chart -->
+                  <core:HTML content="{dashboard>/chartHtml}" preferDOM="false" />
 
-                  <Label text="Connection Status" />
-                  <ObjectStatus
-                    text="{dashboard>/connectionStatus}"
-                    state="{= ${dashboard>/connectionStatus} === 'Connected' ? 'Success' : 'Error' }"
-                    icon="{= ${dashboard>/connectionStatus} === 'Connected' ? 'sap-icon://connected' : 'sap-icon://disconnected' }" />
+                  <!-- Legend Breakdown -->
+                  <VBox width="220px" class="sapUiSmallMarginBegin">
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="chartLegendItem">
+                      <HBox alignItems="Center">
+                        <core:HTML content='&lt;span class="legendColorBox" style="background:#10b981;"&gt;&lt;/span&gt;' preferDOM="false" />
+                        <Text text="Confirmed Picks" class="legendLabel" />
+                      </HBox>
+                      <Text text="{dashboard>/confirmedTasks} ({dashboard>/confirmedPct}%)" class="legendCount" />
+                    </HBox>
 
-                  <Label text="Active Target Endpoint" />
-                  <Text text="{dashboard>/endpoint}" />
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="chartLegendItem">
+                      <HBox alignItems="Center">
+                        <core:HTML content='&lt;span class="legendColorBox" style="background:#0284c7;"&gt;&lt;/span&gt;' preferDOM="false" />
+                        <Text text="Open / Pending" class="legendLabel" />
+                      </HBox>
+                      <Text text="{dashboard>/openTasks} ({dashboard>/openPct}%)" class="legendCount" />
+                    </HBox>
 
-                  <Label text="Last Synchronized" />
-                  <Text text="{dashboard>/lastCheck}" />
-                </f:content>
-              </f:SimpleForm>
-            </content>
-          </Panel>
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="chartLegendItem">
+                      <HBox alignItems="Center">
+                        <core:HTML content='&lt;span class="legendColorBox" style="background:#ef4444;"&gt;&lt;/span&gt;' preferDOM="false" />
+                        <Text text="Discrepancies" class="legendLabel" />
+                      </HBox>
+                      <Text text="{dashboard>/failedTasks} ({dashboard>/failedPct}%)" class="legendCount" />
+                    </HBox>
+                  </VBox>
+                </HBox>
 
-          <!-- Quick Actions Card -->
-          <Panel
-            headerText="Quick Operations"
-            class="fioriPanelCard">
-            <content>
-              <VBox class="sapUiSmallMargin">
-                <Text text="Launch picking workflows and warehouse administration tasks directly:" class="sapUiSmallMarginBottom" />
-                <HBox wrap="Wrap">
-                  <Button
-                    text="Start 1-Scan Pick"
-                    icon="sap-icon://bar-code"
-                    type="Emphasized"
-                    class="quickActionButton"
-                    press=".onGoToScan" />
-                  <Button
-                    text="View Warehouse Tasks"
-                    icon="sap-icon://task"
-                    class="quickActionButton"
-                    press=".onGoToTasks" />
-                  <Button
-                    text="View Pick Audit Log"
-                    icon="sap-icon://history"
-                    class="quickActionButton"
-                    press=".onGoToHistory" />
-                  <Button
-                    text="System Diagnostics"
-                    icon="sap-icon://sys-monitor"
-                    class="quickActionButton"
-                    press=".onGoToDiagnostics" />
+                <!-- Workload Progress Track -->
+                <VBox class="sapUiSmallMarginTop">
+                  <HBox justifyContent="SpaceBetween" alignItems="Center">
+                    <Text text="Overall Fulfillment Progress" class="sapUiTinyMarginBottom" style="font-weight:600; font-size:0.8125rem;" />
+                    <Text text="{dashboard>/confirmedPct}% Completed" style="font-weight:700; color:#10b981; font-size:0.8125rem;" />
+                  </HBox>
+                  <core:HTML content="{dashboard>/workloadBarHtml}" preferDOM="false" />
+                </VBox>
+
+                <!-- High-Velocity KPI Badges -->
+                <HBox justifyContent="SpaceBetween" class="sapUiSmallMarginTop" style="border-top: 1px solid #f1f5f9; padding-top: 0.75rem;">
+                  <VBox>
+                    <Text text="Scan Accuracy" style="font-size: 0.75rem; color: #64748b;" />
+                    <Text text="{dashboard>/accuracyRate}" style="font-weight: 700; color: #0f172a;" />
+                  </VBox>
+                  <VBox>
+                    <Text text="Verification Latency" style="font-size: 0.75rem; color: #64748b;" />
+                    <Text text="{dashboard>/scanLatency}" style="font-weight: 700; color: #0f172a;" />
+                  </VBox>
+                  <VBox>
+                    <Text text="Barcode Format" style="font-size: 0.75rem; color: #64748b;" />
+                    <Text text="BIN|MAT|SER|HU" style="font-weight: 700; color: #0284c7;" />
+                  </VBox>
                 </HBox>
               </VBox>
             </content>
           </Panel>
+
+          <!-- System Telemetry & Quick Action Dock -->
+          <VBox>
+            <!-- Telemetry Card -->
+            <Panel
+              headerText="System Telemetry &amp; Gateway Health"
+              class="systematicCard sapUiSmallMarginBottom">
+              <content>
+                <f:SimpleForm
+                  editable="false"
+                  layout="ResponsiveGridLayout"
+                  labelSpanXL="5"
+                  labelSpanL="5"
+                  labelSpanM="5"
+                  labelSpanS="12">
+                  <f:content>
+                    <Label text="Runtime Mode" />
+                    <ObjectStatus
+                      text="{= ${dashboard>/mode}.toUpperCase() }"
+                      state="{= ${dashboard>/mode} === 'mock' ? 'Information' : 'Success' }"
+                      icon="sap-icon://settings" />
+
+                    <Label text="Connection Status" />
+                    <ObjectStatus
+                      text="{dashboard>/connectionStatus}"
+                      state="{= ${dashboard>/connectionStatus} === 'Connected' ? 'Success' : 'Error' }"
+                      icon="{= ${dashboard>/connectionStatus} === 'Connected' ? 'sap-icon://connected' : 'sap-icon://disconnected' }" />
+
+                    <Label text="Active Target Endpoint" />
+                    <Text text="{dashboard>/endpoint}" />
+
+                    <Label text="Last Verified Sync" />
+                    <Text text="{dashboard>/lastCheck}" />
+                  </f:content>
+                </f:SimpleForm>
+              </content>
+            </Panel>
+
+            <!-- Quick Workflow Dock -->
+            <Panel
+              headerText="Rapid Workflow Dock"
+              class="systematicCard">
+              <content>
+                <VBox class="quickActionGrid">
+                  <!-- Start 1-Scan Pick (Primary) -->
+                  <CustomListItem
+                    type="Active"
+                    class="actionTileCard actionTilePrimary"
+                    press=".onGoToScan">
+                    <HBox alignItems="Center">
+                      <core:HTML content='&lt;span class="sapUiIcon" style="font-family: SAP-icons; font-size: 1.25rem; margin-right: 8px;"&gt;&amp;#xe044;&lt;/span&gt;' preferDOM="false" />
+                      <Text text="Start 1-Scan Pick" class="actionTitleText" />
+                    </HBox>
+                    <Text text="Open 2D barcode scanner to verify bin, material, HU and serial." class="actionSubtext" />
+                  </CustomListItem>
+
+                  <!-- View Tasks -->
+                  <CustomListItem
+                    type="Active"
+                    class="actionTileCard"
+                    press=".onGoToTasks">
+                    <HBox alignItems="Center">
+                      <core:HTML content='&lt;span class="sapUiIcon" style="font-family: SAP-icons; font-size: 1.25rem; color: #0284c7; margin-right: 8px;"&gt;&amp;#xe0b2;&lt;/span&gt;' preferDOM="false" />
+                      <Text text="Warehouse Tasks" class="actionTitleText" />
+                    </HBox>
+                    <Text text="Inspect open picking orders, filter by bin status, and monitor inventory." class="actionSubtext" />
+                  </CustomListItem>
+
+                  <!-- Audit Log -->
+                  <CustomListItem
+                    type="Active"
+                    class="actionTileCard"
+                    press=".onGoToHistory">
+                    <HBox alignItems="Center">
+                      <core:HTML content='&lt;span class="sapUiIcon" style="font-family: SAP-icons; font-size: 1.25rem; color: #10b981; margin-right: 8px;"&gt;&amp;#xe030;&lt;/span&gt;' preferDOM="false" />
+                      <Text text="Pick Audit Trail" class="actionTitleText" />
+                    </HBox>
+                    <Text text="Review timestamped scan records, validation logs, and completed picks." class="actionSubtext" />
+                  </CustomListItem>
+
+                  <!-- Diagnostics -->
+                  <CustomListItem
+                    type="Active"
+                    class="actionTileCard"
+                    press=".onGoToDiagnostics">
+                    <HBox alignItems="Center">
+                      <core:HTML content='&lt;span class="sapUiIcon" style="font-family: SAP-icons; font-size: 1.25rem; color: #6366f1; margin-right: 8px;"&gt;&amp;#xe1e3;&lt;/span&gt;' preferDOM="false" />
+                      <Text text="System Diagnostics" class="actionTitleText" />
+                    </HBox>
+                    <Text text="Measure roundtrip latency, test SAP Gateway, and check destination tokens." class="actionSubtext" />
+                  </CustomListItem>
+                </VBox>
+              </content>
+            </Panel>
+          </VBox>
         </l:Grid>
+
+        <!-- Live Pending Tasks Queue Preview -->
+        <Panel
+          headerText="Live Warehouse Picking Queue (Actionable Tasks)"
+          class="systematicCard sapUiSmallMarginTop">
+          <headerToolbar>
+            <OverflowToolbar>
+              <Title text="Live Warehouse Picking Queue" level="H3" />
+              <ToolbarSpacer />
+              <Button
+                text="View All Warehouse Tasks"
+                icon="sap-icon://navigation-right-arrow"
+                type="Transparent"
+                press=".onGoToTasks" />
+            </OverflowToolbar>
+          </headerToolbar>
+          <content>
+            <Table
+              id="dashboardTasksPreviewTable"
+              items="{dashboard>/recentTasks}"
+              class="systematicTable"
+              noDataText="No active picking tasks available.">
+              <columns>
+                <Column width="16%">
+                  <Text text="Task Number" />
+                </Column>
+                <Column width="20%">
+                  <Text text="Material SKU" />
+                </Column>
+                <Column width="18%">
+                  <Text text="Source Storage Bin" />
+                </Column>
+                <Column width="18%">
+                  <Text text="Destination Bin" />
+                </Column>
+                <Column width="14%" hAlign="Center">
+                  <Text text="Status" />
+                </Column>
+                <Column width="14%" hAlign="End">
+                  <Text text="Direct Action" />
+                </Column>
+              </columns>
+              <items>
+                <ColumnListItem>
+                  <cells>
+                    <ObjectIdentifier
+                      title="{dashboard>taskNumber}" />
+                    <Text text="{dashboard>material}" />
+                    <ObjectStatus
+                      text="{dashboard>sourceBin}"
+                      icon="sap-icon://functional-location" />
+                    <Text text="{dashboard>destinationBin}" />
+                    <ObjectStatus
+                      text="{dashboard>status}"
+                      state="{= ${dashboard>status} === 'Open' ? 'Information' : (${dashboard>status} === 'Confirmed' ? 'Success' : 'Error') }"
+                      icon="{= ${dashboard>status} === 'Open' ? 'sap-icon://in-progress' : (${dashboard>status} === 'Confirmed' ? 'sap-icon://accept' : 'sap-icon://error') }" />
+                    <Button
+                      text="Scan Pick"
+                      icon="sap-icon://bar-code"
+                      type="{= ${dashboard>status} === 'Open' ? 'Emphasized' : 'Default' }"
+                      enabled="{= ${dashboard>status} === 'Open' }"
+                      press=".onQuickScanTask" />
+                  </cells>
+                </ColumnListItem>
+              </items>
+            </Table>
+          </content>
+        </Panel>
       </VBox>
     </content>
   </Page>

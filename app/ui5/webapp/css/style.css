@@ -1,94 +1,471 @@
-/* OneScanPicker Enterprise Fiori Stylesheet */
+/* OneScanPicker Enterprise Modern Fiori Stylesheet */
 
-/* Consistent Shell & Canvas Spacing */
+/* Google Fonts Import for Crisp Modern Typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* Shell & Canvas Spacing */
 .sapUiBody {
   margin: 0;
   padding: 0;
-  font-family: "72", "72full", Arial, Helvetica, sans-serif;
-  background-color: #f5f6f8;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "72", Arial, sans-serif !important;
+  background: #f1f5f9;
+  color: #1e293b;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Header & Title Adjustments */
+/* Header & ToolHeader Enhancements */
 .oneScanHeaderTitle {
   font-weight: 700 !important;
-  font-size: 1.15rem !important;
-  color: #1d2d3e;
+  font-size: 1.125rem !important;
+  color: #0f172a !important;
+  letter-spacing: -0.01em;
 }
 
-/* Dashboard KPI Card Styling */
-.kpiCardContainer {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
+.headerBrandBadge {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff !important;
+  border-radius: 6px;
+  padding: 4px;
 }
 
-.kpiTileCustom {
-  min-height: 120px;
-  border-radius: 8px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
+/* Status Indicator Dot with Pulse Animation */
+.statusDotPulse {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: pulseDot 2s infinite cubic-bezier(0.66, 0, 0, 1);
+  margin-right: 6px;
 }
 
-.kpiTileCustom:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+@keyframes pulseDot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
 }
 
-/* Card & Panel Enhancements */
-.fioriPanelCard {
-  border-radius: 8px !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+/* Executive KPI Grid & Cards */
+.kpiSummaryGrid {
+  margin-bottom: 1.25rem !important;
+}
+
+.executiveKpiCard {
   background: #ffffff;
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
 }
 
-/* Quick Action Buttons */
-.quickActionButton {
-  margin-right: 0.75rem !important;
-  margin-bottom: 0.5rem !important;
-  border-radius: 6px !important;
+.executiveKpiCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04) !important;
+  border-color: #cbd5e1 !important;
 }
 
-/* Latency Status Badges */
-.latencyBadgeFast {
-  font-weight: 600;
-  color: #107e3e !important;
+/* Colored Top Accent Strips */
+.kpiCardTotal {
+  border-top: 4px solid #6366f1 !important;
 }
 
-.latencyBadgeMedium {
-  font-weight: 600;
-  color: #e9730c !important;
+.kpiCardOpen {
+  border-top: 4px solid #0284c7 !important;
 }
 
-.latencyBadgeSlow {
-  font-weight: 600;
-  color: #bb0000 !important;
+.kpiCardConfirmed {
+  border-top: 4px solid #10b981 !important;
 }
 
-/* Table and Form Clean Spacing */
-.sapMListTblCell {
-  vertical-align: middle !important;
+.kpiCardFailed {
+  border-top: 4px solid #ef4444 !important;
 }
 
-.fioriSectionHeader {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #32363a;
+.kpiContentBox {
+  padding: 1.1rem 1.25rem;
+}
+
+.kpiHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 0.5rem;
 }
 
-/* Scan Screen Input Big & Focused */
-.scanInputHero .sapMInputBaseInner {
-  font-size: 1.1rem !important;
+.kpiTitleText {
+  font-size: 0.8125rem !important;
   font-weight: 600 !important;
-  letter-spacing: 0.5px;
-  height: 2.75rem !important;
+  color: #64748b !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .kpiCardContainer {
-    grid-template-columns: 1fr;
+.kpiIconWrapper {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpiIconTotal {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.kpiIconOpen {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.kpiIconConfirmed {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.kpiIconFailed {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.kpiValueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.kpiBigNumber {
+  font-size: 2.25rem !important;
+  font-weight: 800 !important;
+  line-height: 1.1;
+  color: #0f172a;
+}
+
+.kpiSubtitleText {
+  font-size: 0.8125rem !important;
+  color: #64748b !important;
+  line-height: 1.3;
+}
+
+.kpiBadgePill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.kpiPillBlue {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.kpiPillGreen {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.kpiPillRed {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.kpiPillIndigo {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+/* Glass & Card Design */
+.systematicCard {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.systematicCard .sapMPanelHdr {
+  background: #ffffff !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  color: #0f172a !important;
+  height: 3rem !important;
+  line-height: 3rem !important;
+  padding: 0 1.25rem !important;
+}
+
+.systematicCard .sapMPanelContent {
+  padding: 1.25rem !important;
+}
+
+/* Chart Container & SVG Graph */
+.chartContainerBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 170px;
+  height: 170px;
+  margin: 0 auto;
+}
+
+.donutSvg {
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.donutCircleBg {
+  fill: none;
+  stroke: #f1f5f9;
+  stroke-width: 14;
+}
+
+.donutCircleSegment {
+  fill: none;
+  stroke-width: 14;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.donutSegmentConfirmed {
+  stroke: #10b981;
+}
+
+.donutSegmentOpen {
+  stroke: #0284c7;
+}
+
+.donutSegmentFailed {
+  stroke: #ef4444;
+}
+
+.donutCenterLabel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.donutScoreValue {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.donutScoreSubtext {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+/* Chart Legend Items */
+.chartLegendItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  border: 1px solid #f1f5f9;
+}
+
+.legendColorBox {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 0.5rem;
+}
+
+.legendLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.legendCount {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Segmented Workload Progress Bar */
+.workloadProgressTrack {
+  display: flex;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #e2e8f0;
+  margin: 0.75rem 0 0.5rem 0;
+}
+
+.workloadBarSegment {
+  height: 100%;
+  transition: width 0.6s ease;
+}
+
+.workloadBarConfirmed {
+  background: #10b981;
+}
+
+.workloadBarOpen {
+  background: #0284c7;
+}
+
+.workloadBarFailed {
+  background: #ef4444;
+}
+
+/* Quick Action Tiles */
+.quickActionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.875rem;
+}
+
+.actionTileCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.actionTileCard:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.1);
+}
+
+.actionTilePrimary {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  border-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+.actionTilePrimary:hover {
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.3) !important;
+}
+
+.actionTilePrimary .actionTitleText,
+.actionTilePrimary .actionSubtext {
+  color: #ffffff !important;
+}
+
+.actionTitleText {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.actionSubtext {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+/* High Visibility Scan Step Wizard Indicator */
+.scanStepContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1rem;
+}
+
+.scanStepItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.scanStepBadge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0284c7;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.scanStepLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* Big Scan Hero Input */
+.scanInputHero .sapMInputBaseInner {
+  font-size: 1.15rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px;
+  height: 3rem !important;
+  border-radius: 8px !important;
+  border: 2px solid #cbd5e1 !important;
+}
+
+.scanInputHero .sapMInputBaseInner:focus {
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2) !important;
+}
+
+/* Clean Systematic Table */
+.systematicTable {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.systematicTable .sapMListTblHeader {
+  background: #f8fafc !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+}
+
+.systematicTable .sapMListTblCell {
+  padding: 0.75rem 1rem !important;
+  vertical-align: middle !important;
+}
+
+/* Responsive Rules */
+@media (max-width: 900px) {
+  .chartContainerBox {
+    width: 140px;
+    height: 140px;
+  }
+  .donutScoreValue {
+    font-size: 1.4rem;
   }
 }

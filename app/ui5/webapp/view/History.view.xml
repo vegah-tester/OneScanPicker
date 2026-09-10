@@ -28,6 +28,7 @@
       <Table
         id="historyTable"
         items="{/Scans}"
+        class="systematicTable"
         growing="true"
         growingThreshold="20"
         noDataText="No scan history records logged yet.">
